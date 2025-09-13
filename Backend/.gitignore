@@ -1,9 +1,3 @@
-# Ignore dependencies
-node_modules/
-
-# Environment variables
+/node_modules/
 .env
-
-# Build outputs
 dist/
-build/
