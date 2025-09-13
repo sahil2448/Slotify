@@ -1,9 +1,5 @@
 # Ignore dependencies
-/Backend/node_modules/
-/Frontend/node_modules/
-
-# Logs
-*.log
+node_modules/
 
 # Environment variables
 .env
