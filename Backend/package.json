@@ -2,13 +2,14 @@
   "name": "backend",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {
-    "build": "tsc",
-    "start": "node dist/server.js",
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "migrate": "knex --knexfile knexfile.ts migrate:latest",
-    "migrate:rollback": "knex --knexfile knexfile.ts migrate:rollback"
-  },
+"scripts": {
+  "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+  "start": "node dist/server.js",
+  "build": "tsc",
+  "migrate": "knex --knexfile knexfile.ts migrate:latest",
+  "migrate:rollback": "knex --knexfile knexfile.ts migrate:rollback"
+}
+,
   "keywords": [],
   "author": "",
   "license": "ISC",

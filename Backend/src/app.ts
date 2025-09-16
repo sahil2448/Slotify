@@ -6,10 +6,11 @@ import slotsRouter from "./routes/slots";
 const app = express();
 app.use(express.json());
 
+// routes
 app.use("/slots", slotsRouter);
 
 app.get("/", (req, res) => {
-  res.send("Scheduler backend is up");
+  res.send("Slotify backend is up 🚀");
 });
 
 export default app;

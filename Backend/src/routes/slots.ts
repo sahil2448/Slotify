@@ -1,7 +1,6 @@
+// src/routes/slots.ts
 import express from "express";
-import * as service from "../services/slotService";
-import { dateToDayOfWeek } from "../utils/dateUtils";
-
+import * as service from "../services/slotService"; // ensure file name matches
 const router = express.Router();
 
 /**
@@ -12,19 +11,21 @@ router.post("/", async (req, res) => {
   try {
     const { day_of_week, start_time, end_time } = req.body;
     if (typeof day_of_week !== "number") return res.status(400).json({ error: "day_of_week required" });
+    if (!start_time || !end_time) return res.status(400).json({ error: "start_time and end_time required" });
 
-    // Optional: enforce max 2 recurring slots per weekday
+    // optional: enforce a max recurring rules per weekday (adjust as needed)
     const existing = await (await import("../db/knex")).default("slots").where({ day_of_week }).count("* as cnt").first();
     const cnt = Number((existing as any).cnt);
-    if (cnt >= 10) { // allow many recurring rules but realtime UI limits per-date slots to 2 after merging
-      // (I keep this permissive; UI enforces the 2-per-date requirement after merging of recurring + exceptions)
+    // If you want to enforce per-weekday recurring rules limit, change 10 -> 2
+    if (cnt >= 10) {
+      // keep permissive for now
     }
 
     const id = await service.createRecurringSlot(day_of_week, start_time, end_time);
-    res.json({ id });
+    return res.status(201).json({ id });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "server error" });
+    return res.status(500).json({ error: "server error" });
   }
 });
 
@@ -34,12 +35,12 @@ router.post("/", async (req, res) => {
  */
 router.get("/", async (req, res) => {
   try {
-    const weekStart = (req.query.weekStart as string) || new Date().toISOString().slice(0,10);
+    const weekStart = (req.query.weekStart as string) || new Date().toISOString().slice(0, 10);
     const data = await service.fetchSlotsForWeek(weekStart);
-    res.json({ weekStart, data });
+    return res.json({ weekStart, data });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "server error" });
+    return res.status(500).json({ error: "server error" });
   }
 });
 
@@ -52,17 +53,13 @@ router.post("/:slotId/exceptions", async (req, res) => {
     const slotId = Number(req.params.slotId);
     const { exception_date, new_start_time, new_end_time, is_deleted } = req.body;
 
-    // Basic validations:
     if (!exception_date) return res.status(400).json({ error: "exception_date required" });
 
-    // Optional: enforce max 2 slots on that date after applying exception.
-    // Simpler approach: let client ensure; backend could compute merged slots for the date and reject if >2.
-
     const id = await service.addException(slotId, exception_date, { new_start_time, new_end_time, is_deleted });
-    res.json({ exceptionId: id });
+    return res.json({ exceptionId: id });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "server error" });
+    return res.status(500).json({ error: "server error" });
   }
 });
 
