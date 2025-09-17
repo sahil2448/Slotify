@@ -1,4 +1,4 @@
-// src/services/slotsService.ts
+﻿// src/services/slotsService.ts
 import db from "../db/knex";
 import { getWeekDates, dateToDayOfWeek } from "../utils/dateUtils";
 
@@ -12,7 +12,7 @@ type RecurringSlot = {
 type ExceptionRowRaw = {
   id: number;
   slot_id: number;
-  exception_date: any; // raw from DB
+  exception_date: any;
   new_start_time: string | null;
   new_end_time: string | null;
   is_deleted: boolean;
@@ -21,7 +21,7 @@ type ExceptionRowRaw = {
 type ExceptionRow = {
   id: number;
   slot_id: number;
-  exception_date: string; // normalized 'YYYY-MM-DD'
+  exception_date: string;
   new_start_time: string | null;
   new_end_time: string | null;
   is_deleted: boolean;
@@ -54,27 +54,31 @@ export async function addException(slot_id: number, exception_date: string, payl
  * Fetch slots for a given week starting at `weekStartISO` (YYYY-MM-DD)
  * Returns: { date: 'YYYY-MM-DD', slots: [{slotId, start_time, end_time, isException}] }
  */
-// replace the existing fetchSlotsForWeek with this exact function
 export async function fetchSlotsForWeek(weekStartISO: string) {
   const dates = getWeekDates(weekStartISO);
 
-  // 1) Recurring slots
+  // 1) Recurring slots for the days in the week
   const daySet = Array.from(new Set(dates.map(dateToDayOfWeek)));
   const recurringSlots: RecurringSlot[] = await db("slots").whereIn("day_of_week", daySet).select("*");
 
-  // 2) Raw exceptions for the date range
-  const rawExceptions: any[] = await db("exceptions")
+  // 2) Raw exceptions in date range
+  const rawExceptions: ExceptionRowRaw[] = await db("exceptions")
     .whereBetween("exception_date", [dates[0], dates[6]])
     .select("*");
 
-  // 3) Normalize exceptions -> { id, slot_id, exception_date:'YYYY-MM-DD', new_start_time, new_end_time, is_deleted }
-  const exceptions = rawExceptions.map((e) => {
+  // 3) Normalize exceptions so comparison is reliable
+  const exceptions: ExceptionRow[] = rawExceptions.map((e) => {
     let exDateStr: string;
     if (e.exception_date instanceof Date) {
-      exDateStr = e.exception_date.toISOString().slice(0, 10);
-    } else {
-      exDateStr = String(e.exception_date).slice(0, 10);
-    }
+  const dt = e.exception_date;
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth() + 1).padStart(2, "0");
+  const d = String(dt.getDate()).padStart(2, "0");
+  exDateStr = `${y}-${m}-${d}`;
+} else {
+  exDateStr = String(e.exception_date).slice(0, 10);
+}
+
     return {
       id: Number(e.id),
       slot_id: Number(e.slot_id),
@@ -85,29 +89,31 @@ export async function fetchSlotsForWeek(weekStartISO: string) {
     };
   });
 
-  // DEBUG: show what we loaded from DB (remove after fix)
-  console.log("DEBUG recurringSlots:", recurringSlots);
-  console.log("DEBUG exceptions (normalized):", exceptions);
+  // DEBUG: print what we loaded (remove after verification)
 
-  // 4) Merge per date
+  // 4) Merge recurring + exceptions into per-date slots
   const result: { date: string; slots: Array<any> }[] = [];
 
   for (const date of dates) {
     const dow = dateToDayOfWeek(date);
     const baseSlots = recurringSlots.filter((s) => s.day_of_week === dow);
+
     const daySlots: any[] = [];
 
     for (const base of baseSlots) {
       const ex = exceptions.find((e) => Number(e.slot_id) === Number(base.id) && e.exception_date === date);
       if (ex) {
-        if (ex.is_deleted) continue;
-        daySlots.push({
-          slotId: base.id,
-          start_time: ex.new_start_time ?? base.start_time,
-          end_time: ex.new_end_time ?? base.end_time,
-          isException: true,
-          exceptionId: ex.id,
-        });
+        if (ex.is_deleted) {
+          continue; // skip this slot for this date
+        } else {
+          daySlots.push({
+            slotId: base.id,
+            start_time: ex.new_start_time ?? base.start_time,
+            end_time: ex.new_end_time ?? base.end_time,
+            isException: true,
+            exceptionId: ex.id,
+          });
+        }
       } else {
         daySlots.push({
           slotId: base.id,
