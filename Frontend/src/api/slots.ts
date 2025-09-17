@@ -23,3 +23,18 @@ export async function createException(slotId:number, body:any) {
   });
   return res.json();
 }
+
+
+export async function deleteExceptionBySlotDate(slotId: number, exception_date: string) {
+  const url = `${base}/slots/${slotId}/exceptions?exception_date=${encodeURIComponent(exception_date)}`;
+  const res = await fetch(url, { method: "DELETE" });
+  if (!res.ok) throw new Error(`Delete exception failed: ${res.status}`);
+  return res.json();
+}
+
+export async function deleteExceptionById(id: number) {
+  const url = `${base}/slots/exceptions/${id}`;
+  const res = await fetch(url, { method: "DELETE" });
+  if (!res.ok) throw new Error(`Delete exception failed: ${res.status}`);
+  return res.json();
+}

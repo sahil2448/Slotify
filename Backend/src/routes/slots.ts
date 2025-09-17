@@ -35,7 +35,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// inside src/routes/slots.ts (replace existing router.post("/:slotId/exceptions", ...))
 router.post("/:slotId/exceptions", async (req, res) => {
   try {
     const slotId = Number(req.params.slotId);
@@ -45,27 +44,21 @@ router.post("/:slotId/exceptions", async (req, res) => {
 
     const db = (await import("../db/knex")).default;
 
-    // Ensure slot exists
     const baseSlot = await db("slots").where({ id: slotId }).first();
     if (!baseSlot) return res.status(404).json({ error: "slot not found" });
 
-    // compute day-of-week for the date (use your util)
     const { dateToDayOfWeek } = await import("../utils/dateUtils");
     const dow = dateToDayOfWeek(exception_date);
 
-    // 1) fetch all recurring slots for that day (array of base slots)
     const recurring = await db("slots").where({ day_of_week: dow }).select("*");
 
-    // 2) fetch existing exceptions for that date EXCLUDING the current slot (we'll simulate current's change)
     const existingExceptionsRaw = await db("exceptions")
       .where({ exception_date })
       .andWhere("slot_id", "!=", slotId)
       .select("*");
 
-    // normalize existing exceptions to a simple map: slot_id -> exception
     const existingExceptions: Record<number, any> = {};
     for (const e of existingExceptionsRaw) {
-      // e.exception_date should be fine; we only need is_deleted and new times
       existingExceptions[Number(e.slot_id)] = {
         new_start_time: e.new_start_time,
         new_end_time: e.new_end_time,
@@ -73,22 +66,17 @@ router.post("/:slotId/exceptions", async (req, res) => {
       };
     }
 
-    // 3) Build the resulting slots for that date after applying existing exceptions AND the new one
     const resulting: Array<{ slotId: number; start_time: string; end_time: string }> = [];
 
     for (const base of recurring) {
       const id = Number(base.id);
 
-      // existing exception for this base slot (other slots)
       const exOther = existingExceptions[id];
 
       if (id === slotId) {
-        // simulate the new exception being applied for this slot
         if (is_deleted) {
-          // it's deleted on this date — skip adding this slot
           continue;
         } else {
-          // modified or unchanged times: if new_start_time provided use it else base.start_time
           resulting.push({
             slotId: id,
             start_time: new_start_time ?? base.start_time,
@@ -96,7 +84,6 @@ router.post("/:slotId/exceptions", async (req, res) => {
           });
         }
       } else if (exOther) {
-        // if other exception deletes it, skip; if overrides, use override
         if (exOther.is_deleted) {
           continue;
         } else {
@@ -107,17 +94,14 @@ router.post("/:slotId/exceptions", async (req, res) => {
           });
         }
       } else {
-        // no exception for this slot
         resulting.push({ slotId: id, start_time: base.start_time, end_time: base.end_time });
       }
     }
 
-    // 4) Now check the count constraint
     if (resulting.length > 2) {
       return res.status(400).json({ error: "Applying this exception would exceed 2 slots for that date" });
     }
 
-    // 5) all good — proceed to add or update exception
     const id = await service.addException(slotId, exception_date, { new_start_time, new_end_time, is_deleted });
     return res.json({ exceptionId: id });
   } catch (err) {
@@ -125,5 +109,37 @@ router.post("/:slotId/exceptions", async (req, res) => {
     return res.status(500).json({ error: "server error" });
   }
 });
+
+// DELETE /slots/:slotId/exceptions?exception_date=YYYY-MM-DD
+router.delete("/:slotId/exceptions", async (req, res) => {
+  try {
+    const slotId = Number(req.params.slotId);
+    const exception_date = String(req.query.exception_date || "");
+    if (!exception_date) return res.status(400).json({ error: "exception_date query param required" });
+
+    const removed = await service.removeExceptionBySlotAndDate(slotId, exception_date);
+    if (!removed) return res.status(404).json({ error: "exception not found" });
+    return res.json({ removed: true });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "server error" });
+  }
+});
+
+// DELETE /slots/exceptions/:id
+router.delete("/exceptions/:id", async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!id) return res.status(400).json({ error: "invalid id" });
+
+    const removed = await service.deleteExceptionById(id);
+    if (!removed) return res.status(404).json({ error: "exception not found" });
+    return res.json({ removed: true });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "server error" });
+  }
+});
+
 
 export default router;

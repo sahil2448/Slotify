@@ -129,3 +129,20 @@ export async function fetchSlotsForWeek(weekStartISO: string) {
 
   return result;
 }
+
+
+// remove an exception row for a given slot_id + exception_date
+export async function removeExceptionBySlotAndDate(slot_id: number, exception_date: string): Promise<boolean> {
+  const existing = await db("exceptions").where({ slot_id, exception_date }).first();
+  if (!existing) return false;
+  await db("exceptions").where({ id: existing.id }).del();
+  return true;
+}
+
+// remove exception by its id
+export async function deleteExceptionById(id: number): Promise<boolean> {
+  const existing = await db("exceptions").where({ id }).first();
+  if (!existing) return false;
+  await db("exceptions").where({ id }).del();
+  return true;
+}

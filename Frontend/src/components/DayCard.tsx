@@ -15,7 +15,7 @@ export default function DayCard({ date, slots, onAdd }: {date:string; slots:any[
 
       <div className="mt-3">
         {slots.length===0 && <div className="text-gray-400 text-sm">No slots</div>}
-        {slots.map((s:any)=> <SlotItem key={s.slotId} slot={s} onAddException={()=>onAdd?.()} />)}
+        {slots.map((s:any)=> <SlotItem key={s.slotId} date={date} slot={s} onAddException={()=>onAdd?.()} />)}
       </div>
     </div>
   );
