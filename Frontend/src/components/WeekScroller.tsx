@@ -46,21 +46,12 @@ export default function WeekScroller({ weeks, onAddForDate, selectedDate }: Week
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }} className="flex items-center  justify-center mb-2">
         <IconButton onClick={handlePrevWeek} disabled={currentWeekIndex === 0}>
           <ChevronLeftIcon />
         </IconButton>
         
-        <Typography variant="subtitle1" fontWeight="medium">
-          Week {currentWeekIndex + 1} of {weeks.length}
-        </Typography>
-        
-        <IconButton onClick={handleNextWeek} disabled={currentWeekIndex === weeks.length - 1}>
-          <ChevronRightIcon />
-        </IconButton>
-      </Box>
-
-      <Box sx={{ 
+              <Box sx={{ 
         display: 'flex', 
         gap: 1, 
         mb: 3, 
@@ -89,7 +80,8 @@ export default function WeekScroller({ weeks, onAddForDate, selectedDate }: Week
                 </Box>
               }
               variant={isToday ? "filled" : "outlined"}
-              color={isToday ? "primary" : isInSelectedMonth ? "default" : "secondary"}
+              // color={isToday ? "primary" : isInSelectedMonth ? "default" : "secondary"}
+              className={isToday ? "!bg-indigo-500 !text-white" : isInSelectedMonth ? "!bg-gray-200 !text-gray-800" : "!bg-gray-100 !text-gray-400"}
               sx={{ 
                 minWidth: 60, 
                 height: 60,
@@ -100,6 +92,13 @@ export default function WeekScroller({ weeks, onAddForDate, selectedDate }: Week
           );
         })}
       </Box>
+
+        
+        <IconButton onClick={handleNextWeek} disabled={currentWeekIndex === weeks.length - 1}>
+          <ChevronRightIcon />
+        </IconButton>
+      </Box>
+
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         {currentWeek.data

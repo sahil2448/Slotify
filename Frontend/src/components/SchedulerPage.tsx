@@ -84,20 +84,6 @@ export default function SchedulerPage() {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box sx={{ bgcolor: '#f5f5f5', minHeight: '100vh' }}>
-        {/* Header */}
-        <AppBar position="static" elevation={0} sx={{ bgcolor: 'white', color: 'black' }}>
-          <Toolbar>
-            <IconButton edge="start" color="inherit">
-              <MenuIcon />
-            </IconButton>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Your Schedule
-            </Typography>
-            <Button variant="outlined" size="small">
-              Save
-            </Button>
-          </Toolbar>
-        </AppBar>
 
         <Container maxWidth="sm" sx={{ px: 2, py: 2 }}>
           {/* Month/Year Selector */}
@@ -117,15 +103,6 @@ export default function SchedulerPage() {
             />
           </Box>
 
-          {/* Show selected month info */}
-          {selectedDate && (
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="body2" color="text.secondary">
-                Showing schedule for {selectedDate.format('MMMM YYYY')} 
-                ({filteredWeeks.length} week{filteredWeeks.length !== 1 ? 's' : ''})
-              </Typography>
-            </Box>
-          )}
 
           {/* Week Scroller */}
           <WeekScroller 

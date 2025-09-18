@@ -21,42 +21,33 @@ export default function DayColumn({ date, slots, onAdd }: DayColumnProps) {
   const dayObj = dayjs(date);
   const isToday = dayObj.isSame(dayjs(), 'day');
   
-  const dayDisplay = dayObj.format('ddd, DD MMMM');
+  const dayDisplay1 = dayObj.format('ddd, DD');
+  const dayDisplay2 = dayObj.format('MMMM');
 
   return (
-    <Paper elevation={1} sx={{ p: 2, bgcolor: 'white' }}>
+    <Paper elevation={1} sx={{ p: 2, bgcolor: 'white' }} className="flex justify-between">
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Typography 
             variant="subtitle1" 
-            color={isToday ? "primary" : "text.primary"}
-            fontWeight="medium"
+            className={isToday ? "text-indigo-500" : "text-gray-500"}
+            fontWeight={isToday ? "bold" :  "bold"}
           >
-            {dayDisplay}
-          </Typography>
-          {isToday && (
+            <p>{dayDisplay1} </p>
+            <div className="flex justify-center items-center gap-4"><p>{dayDisplay2}</p>
+                      {isToday && (
             <Chip 
               label="Today" 
               size="small" 
-              color="primary" 
+              className="!bg-indigo-500 !text-white" 
               variant="filled"
               sx={{ fontSize: '0.7rem', height: 20 }}
             />
-          )}
+          )}</div>
+
+          </Typography>
+
         </Box>
-        
-        <IconButton 
-          onClick={onAdd} 
-          color="primary" 
-          size="small"
-          sx={{ 
-            bgcolor: 'primary.main', 
-            color: 'white',
-            '&:hover': { bgcolor: 'primary.dark' }
-          }}
-        >
-          <AddIcon fontSize="small" />
-        </IconButton>
       </Box>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>

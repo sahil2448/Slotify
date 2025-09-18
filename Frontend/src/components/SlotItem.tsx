@@ -1,18 +1,18 @@
 // src/components/SlotItem.tsx
 import React, { useState } from "react";
 import { deleteExceptionBySlotDate, deleteExceptionById } from "../api/slots";
-import { 
-  Box, 
-  Typography, 
-  IconButton, 
+import {
+  Box,
+  Typography,
+  IconButton,
   Chip,
   Tooltip,
   CircularProgress,
   Paper
 } from "@mui/material";
-import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-
+import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 type Props = {
   slot: {
     slotId: number;
@@ -50,10 +50,10 @@ export default function SlotItem({ slot, date, onAddException, onRefresh }: Prop
   };
 
   return (
-    <Paper 
-      variant="outlined" 
-      sx={{ 
-        p: 2, 
+    <div className="flex justify-between gap-5"> <Paper
+      variant="outlined"
+      sx={{
+        p: 2,
         bgcolor: 'grey.50',
         display: 'flex',
         alignItems: 'center',
@@ -65,42 +65,47 @@ export default function SlotItem({ slot, date, onAddException, onRefresh }: Prop
           {slot.start_time} - {slot.end_time}
         </Typography>
         {slot.isException && (
-          <Chip 
-            label="Exception" 
-            size="small" 
-            color="primary" 
+          <Chip
+            label="Exception"
+            size="small"
+            color="primary"
             variant="outlined"
           />
         )}
       </Box>
 
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+      
+    </Paper>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
         <Tooltip title="Add exception">
-          <IconButton
+
+          <IconButton 
             onClick={() => onAddException?.(slot.slotId)}
-            disabled={loading}
-            size="small"
-            color="primary"
-          >
-            <AddCircleOutlineIcon fontSize="small" />
-          </IconButton>
+          color="default" 
+          size="small"
+          disabled={loading}
+
+        >
+            <AddCircleOutlineOutlinedIcon fontSize="medium" />
+        </IconButton>
         </Tooltip>
-        
+
         <Tooltip title="Delete slot">
           <IconButton
             onClick={handleUndo}
             disabled={loading}
             size="small"
-            color="error"
+            color="default"
           >
             {loading ? (
               <CircularProgress size={16} />
             ) : (
-              <DeleteIcon fontSize="small" />
+              <DeleteOutlineOutlinedIcon fontSize="medium" />
             )}
           </IconButton>
         </Tooltip>
       </Box>
-    </Paper>
+    </div>
+   
   );
 }
