@@ -142,4 +142,27 @@ router.delete("/exceptions/:id", async (req, res) => {
 });
 
 
+router.delete("/:slotId", async (req, res) => {
+  try {
+    const slotId = Number(req.params.slotId);
+    if (!slotId) return res.status(400).json({ error: "invalid slotId" });
+
+    const db = (await import("../db/knex")).default;
+    
+    const slot = await db("slots").where({ id: slotId }).first();
+    if (!slot) return res.status(404).json({ error: "slot not found" });
+
+    await db("exceptions").where({ slot_id: slotId }).del();
+    
+    await db("slots").where({ id: slotId }).del();
+    
+    return res.json({ removed: true });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "server error" });
+  }
+});
+
+
+
 export default router;

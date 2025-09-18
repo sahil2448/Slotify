@@ -1,4 +1,4 @@
-// src/components/WeekScroller.tsx
+// src/components/WeekScroller.tsx - ADD RESPONSIVE IMPROVEMENTS
 import React, { useState, useEffect } from "react";
 import DayColumn from "./DayColumn";
 import { 
@@ -7,7 +7,9 @@ import {
   IconButton,
   Typography,
   Chip,
-  Alert
+  Alert,
+  useTheme,
+  useMediaQuery
 } from "@mui/material";
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -17,10 +19,13 @@ interface WeekScrollerProps {
   weeks: any[];
   onAddForDate: (date: string) => void;
   selectedDate: Dayjs | null;
+  onAddException: (slotId: number, date: string, startTime: string, endTime: string) => void;
 }
 
-export default function WeekScroller({ weeks, onAddForDate, selectedDate }: WeekScrollerProps) {
+export default function WeekScroller({ weeks, onAddForDate, selectedDate, onAddException }: WeekScrollerProps) {
   const [currentWeekIndex, setCurrentWeekIndex] = useState(0);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     setCurrentWeekIndex(0);
@@ -46,61 +51,93 @@ export default function WeekScroller({ weeks, onAddForDate, selectedDate }: Week
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }} className="flex items-center  justify-center mb-2">
-        <IconButton onClick={handlePrevWeek} disabled={currentWeekIndex === 0}>
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        mb: 2,
+        gap: 2
+      }}>
+        <IconButton 
+          onClick={handlePrevWeek} 
+          disabled={currentWeekIndex === 0}
+          size={isMobile ? "small" : "medium"}
+          sx={{
+            bgcolor: 'primary.main',
+            color: 'white',
+            '&:hover': { bgcolor: 'primary.dark' },
+            '&:disabled': { bgcolor: 'grey.300' }
+          }}
+        >
           <ChevronLeftIcon />
         </IconButton>
         
-              <Box sx={{ 
-        display: 'flex', 
-        gap: 1, 
-        mb: 3, 
-        overflowX: 'auto',
-        pb: 1,
-        '&::-webkit-scrollbar': { height: 4 },
-        '&::-webkit-scrollbar-thumb': { bgcolor: 'grey.300', borderRadius: 2 }
-      }}>
-        {currentWeek.data.map((day: any) => {
-          const dayObj = dayjs(day.date);
-          const isToday = dayObj.isSame(dayjs(), 'day');
-          const isInSelectedMonth = selectedDate ? 
-            dayObj.month() === selectedDate.month() && dayObj.year() === selectedDate.year() : true;
-          
-          return (
-            <Chip
-              key={day.date}
-              label={
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant="caption" display="block">
-                    {dayObj.format('ddd')}
-                  </Typography>
-                  <Typography variant="body2" fontWeight="bold">
-                    {dayObj.format('DD')}
-                  </Typography>
-                </Box>
-              }
-              variant={isToday ? "filled" : "outlined"}
-              // color={isToday ? "primary" : isInSelectedMonth ? "default" : "secondary"}
-              className={isToday ? "!bg-indigo-500 !text-white" : isInSelectedMonth ? "!bg-gray-200 !text-gray-800" : "!bg-gray-100 !text-gray-400"}
-              sx={{ 
-                minWidth: 60, 
-                height: 60,
-                borderRadius: 2,
-                opacity: isInSelectedMonth ? 1 : 0.5
-              }}
-            />
-          );
-        })}
-      </Box>
+        <Box sx={{ 
+          display: 'flex', 
+          gap: isMobile ? 0.5 : 1, 
+          overflowX: 'auto',
+          pb: 1,
+          px: 1,
+          flex: 1,
+          justifyContent: 'center',
+          '&::-webkit-scrollbar': { height: 4 },
+          '&::-webkit-scrollbar-thumb': { bgcolor: 'grey.300', borderRadius: 2 }
+        }}>
+          {currentWeek.data.map((day: any) => {
+            const dayObj = dayjs(day.date);
+            const isToday = dayObj.isSame(dayjs(), 'day');
+            const isInSelectedMonth = selectedDate ? 
+              dayObj.month() === selectedDate.month() && dayObj.year() === selectedDate.year() : true;
+            
+            return (
+              <Chip
+                key={day.date}
+                label={
+                  <Box sx={{ textAlign: 'center' }}>
+                    <Typography 
+                      variant="caption" 
+                      display="block"
+                      sx={{ fontSize: isMobile ? '0.6rem' : '0.7rem' }}
+                    >
+                      {dayObj.format('ddd')}
+                    </Typography>
+                    <Typography 
+                      variant={isMobile ? "caption" : "body2"} 
+                      fontWeight="bold"
+                    >
+                      {dayObj.format('DD')}
+                    </Typography>
+                  </Box>
+                }
+                variant={isToday ? "filled" : "outlined"}
+                className={isToday ? "!bg-indigo-500 !text-white" : isInSelectedMonth ? "!bg-gray-200 !text-gray-800" : "!bg-gray-100 !text-gray-400"}
+                sx={{ 
+                  minWidth: isMobile ? 50 : 60, 
+                  height: isMobile ? 50 : 60,
+                  borderRadius: 2,
+                  opacity: isInSelectedMonth ? 1 : 0.5
+                }}
+              />
+            );
+          })}
+        </Box>
 
-        
-        <IconButton onClick={handleNextWeek} disabled={currentWeekIndex === weeks.length - 1}>
+        <IconButton 
+          onClick={handleNextWeek} 
+          disabled={currentWeekIndex === weeks.length - 1}
+          size={isMobile ? "small" : "medium"}
+          sx={{
+            bgcolor: 'primary.main',
+            color: 'white',
+            '&:hover': { bgcolor: 'primary.dark' },
+            '&:disabled': { bgcolor: 'grey.300' }
+          }}
+        >
           <ChevronRightIcon />
         </IconButton>
       </Box>
 
-
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: isMobile ? 1 : 2 }}>
         {currentWeek.data
           .filter((day: any) => {
             if (!selectedDate) return true;
@@ -113,6 +150,7 @@ export default function WeekScroller({ weeks, onAddForDate, selectedDate }: Week
               date={day.date}
               slots={day.slots}
               onAdd={() => onAddForDate(day.date)}
+              onAddException={onAddException}
             />
           ))}
       </Box>

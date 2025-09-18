@@ -1,6 +1,5 @@
-// src/components/SlotItem.tsx
 import React, { useState } from "react";
-import { deleteExceptionBySlotDate, deleteExceptionById } from "../api/slots";
+import { deleteExceptionBySlotDate, deleteExceptionById, deleteSlot } from "../api/slots";
 import {
   Box,
   Typography,
@@ -8,11 +7,18 @@ import {
   Chip,
   Tooltip,
   CircularProgress,
-  Paper
+  Paper,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  useTheme,
+  useMediaQuery
 } from "@mui/material";
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
+
 type Props = {
   slot: {
     slotId: number;
@@ -28,84 +34,198 @@ type Props = {
 
 export default function SlotItem({ slot, date, onAddException, onRefresh }: Props) {
   const [loading, setLoading] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const handleUndo = async () => {
-    const ok = window.confirm("Remove exception and restore recurring slot for this date?");
-    if (!ok) return;
-
+  const handleDelete = async () => {
     try {
       setLoading(true);
-      if (slot.exceptionId) {
-        await deleteExceptionById(slot.exceptionId);
+      
+      if (slot.isException) {
+        if (slot.exceptionId) {
+          await deleteExceptionById(slot.exceptionId);
+        } else {
+          await deleteExceptionBySlotDate(slot.slotId, date);
+        }
       } else {
-        await deleteExceptionBySlotDate(slot.slotId, date);
+        await deleteSlot(slot.slotId);
       }
+      
+      setDeleteDialogOpen(false);
       onRefresh();
     } catch (err: any) {
       console.error(err);
-      alert("Failed to remove exception: " + (err?.message ?? err));
+      alert("Failed to delete: " + (err?.message ?? err));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex justify-between gap-5"> <Paper
-      variant="outlined"
-      sx={{
-        p: 2,
-        bgcolor: 'grey.50',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-      }}
-    >
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <Typography variant="body1" fontWeight="medium">
-          {slot.start_time} - {slot.end_time}
-        </Typography>
-        {slot.isException && (
-          <Chip
-            label="Exception"
-            size="small"
-            color="primary"
-            variant="outlined"
-          />
-        )}
-      </Box>
-
-      
-    </Paper>
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-        <Tooltip title="Add exception">
-
-          <IconButton 
-            onClick={() => onAddException?.(slot.slotId)}
-          color="default" 
-          size="small"
-          disabled={loading}
-
+    <>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
+          gap: 1,
+          mb: 1
+        }}
+      >
+        <Paper
+          variant="outlined"
+          sx={{
+            flex: 1,
+            p: isMobile ? 1.5 : 2,
+            bgcolor: slot.isException ? 'warning.light' : 'grey.50',
+            borderRadius: 2,
+            position: 'relative',
+            minHeight: isMobile ? 'auto' : '56px',
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: isMobile ? 'stretch' : 'center',
+            gap: isMobile ? 1 : 2
+          }}
         >
-            <AddCircleOutlineOutlinedIcon fontSize="medium" />
-        </IconButton>
-        </Tooltip>
-
-        <Tooltip title="Delete slot">
-          <IconButton
-            onClick={handleUndo}
-            disabled={loading}
-            size="small"
-            color="default"
+          {/* Time Display */}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              flex: 1,
+              minWidth: 0 // Allow shrinking
+            }}
           >
-            {loading ? (
-              <CircularProgress size={16} />
-            ) : (
-              <DeleteOutlineOutlinedIcon fontSize="medium" />
+            <Typography 
+              variant={isMobile ? "body2" : "body1"} 
+              fontWeight="medium"
+              sx={{
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}
+            >
+              {slot.start_time} - {slot.end_time}
+            </Typography>
+            
+            {slot.isException && (
+              <Chip
+                label="Exception"
+                size={isMobile ? "small" : "medium"}
+                color="warning"
+                variant="filled"
+                sx={{ 
+                  fontSize: isMobile ? '0.65rem' : '0.75rem',
+                  height: isMobile ? 20 : 24,
+                  flexShrink: 0
+                }}
+              />
             )}
-          </IconButton>
-        </Tooltip>
+          </Box>
+
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 0.5,
+              justifyContent: isMobile ? 'space-between' : 'flex-end',
+              flexShrink: 0
+            }}
+          >
+            {!slot.isException && (
+              <Tooltip title="Add exception for this date" arrow>
+                <IconButton
+                  onClick={() => onAddException?.(slot.slotId)}
+                  color="primary"
+                  size={isMobile ? "small" : "medium"}
+                  disabled={loading}
+                  sx={{
+                    bgcolor: 'primary.main',
+                    color: 'white',
+                    '&:hover': { 
+                      bgcolor: 'primary.dark',
+                      transform: 'scale(1.05)'
+                    },
+                    '&:disabled': {
+                      bgcolor: 'grey.400'
+                    }
+                  }}
+                >
+                  <AddCircleOutlineOutlinedIcon fontSize={isMobile ? "small" : "medium"} />
+                </IconButton>
+              </Tooltip>
+            )}
+
+            <Tooltip 
+              title={slot.isException ? "Remove exception" : "Delete recurring slot"} 
+              arrow
+            >
+              <IconButton
+                onClick={() => setDeleteDialogOpen(true)}
+                disabled={loading}
+                size={isMobile ? "small" : "medium"}
+                color="error"
+                sx={{
+                  '&:hover': {
+                    transform: 'scale(1.05)'
+                  }
+                }}
+              >
+                {loading ? (
+                  <CircularProgress size={isMobile ? 16 : 20} />
+                ) : (
+                  <DeleteOutlineOutlinedIcon fontSize={isMobile ? "small" : "medium"} />
+                )}
+              </IconButton>
+            </Tooltip>
+          </Box>
+        </Paper>
       </Box>
-    </div>
-   
+
+      <Dialog 
+        open={deleteDialogOpen} 
+        onClose={() => setDeleteDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: { 
+            m: isMobile ? 1 : 3,
+            width: isMobile ? 'calc(100% - 16px)' : 'auto'
+          }
+        }}
+      >
+        <DialogTitle>
+          {slot.isException ? 'Remove Exception' : 'Delete Recurring Slot'}
+        </DialogTitle>
+        <DialogContent>
+          <Typography>
+            {slot.isException 
+              ? `Remove the exception and restore the original recurring slot (${slot.start_time} - ${slot.end_time}) for ${date}?`
+              : `Permanently delete the recurring slot (${slot.start_time} - ${slot.end_time}) for all days? This will also remove all its exceptions.`
+            }
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: isMobile ? 2 : 3, gap: 1 }}>
+          <Button 
+            onClick={() => setDeleteDialogOpen(false)} 
+            disabled={loading}
+            fullWidth={isMobile}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleDelete} 
+            color="error" 
+            variant="contained"
+            disabled={loading}
+            fullWidth={isMobile}
+          >
+            {loading ? 'Deleting...' : (slot.isException ? 'Remove Exception' : 'Delete Slot')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 }

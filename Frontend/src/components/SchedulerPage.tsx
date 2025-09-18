@@ -1,10 +1,11 @@
-// src/components/SchedulerPage.tsx
 import React, { useRef, useCallback, useState, useMemo } from "react";
 import { useSlotsInfinite } from "../hooks/useSlots";
 import WeekScroller from "./WeekScroller";
 import { createSlot } from "../api/slots";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import ExceptionDialog from './ExceptionDialog'; // Add import
+
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { 
   Box, 
@@ -30,8 +31,17 @@ export default function SchedulerPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [startTime, setStartTime] = useState<Dayjs | null>(dayjs().hour(9).minute(0));
   const [endTime, setEndTime] = useState<Dayjs | null>(dayjs().hour(10).minute(0));
+  const [exceptionDialogOpen, setExceptionDialogOpen] = useState(false);
+const [selectedSlot, setSelectedSlot] = useState<{slotId: number, date: string, startTime: string, endTime: string} | null>(null);
 
-  // Filter weeks based on selected month/year
+
+
+const handleAddException = (slotId: number, date: string, startTime: string, endTime: string) => {
+  setSelectedSlot({ slotId, date, startTime, endTime });
+  setExceptionDialogOpen(true);
+};
+
+
   const filteredWeeks = useMemo(() => {
     if (!selectedDate) return weeks;
     
@@ -76,7 +86,6 @@ export default function SchedulerPage() {
     }
   };
 
-  // Handle month/year change
   const handleDateChange = (newDate: Dayjs | null) => {
     setSelectedDate(newDate);
   };
@@ -84,9 +93,7 @@ export default function SchedulerPage() {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box sx={{ bgcolor: '#f5f5f5', minHeight: '100vh' }}>
-
         <Container maxWidth="sm" sx={{ px: 2, py: 2 }}>
-          {/* Month/Year Selector */}
           <Box sx={{ mb: 3 }}>
             <DatePicker
               value={selectedDate}
@@ -104,14 +111,14 @@ export default function SchedulerPage() {
           </Box>
 
 
-          {/* Week Scroller */}
           <WeekScroller 
             weeks={filteredWeeks}
             onAddForDate={handleAddForDate}
             selectedDate={selectedDate}
+            onAddException={handleAddException}
           />
 
-          {/* Loading indicator */}
+
           <Box ref={loaderRef} sx={{ height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Typography variant="body2" color="text.secondary">
               Loading more...
@@ -119,7 +126,6 @@ export default function SchedulerPage() {
           </Box>
         </Container>
 
-        {/* Add Slot Dialog */}
         <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
           <DialogTitle>Add New Time Slot</DialogTitle>
           <DialogContent>
@@ -142,6 +148,20 @@ export default function SchedulerPage() {
           </DialogActions>
         </Dialog>
       </Box>
+        {selectedSlot && (
+          <ExceptionDialog
+            open={exceptionDialogOpen}
+         onClose={() => {
+              setExceptionDialogOpen(false);
+              setSelectedSlot(null);
+            }}
+            slotId={selectedSlot.slotId}
+            date={selectedSlot.date}
+            originalStartTime={selectedSlot.startTime}
+            originalEndTime={selectedSlot.endTime}
+            onRefresh={() => window.location.reload()}
+  />
+)}
     </LocalizationProvider>
   );
 }

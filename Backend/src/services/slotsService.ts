@@ -1,4 +1,4 @@
-﻿// src/services/slotsService.ts
+﻿﻿// src/services/slotsService.ts
 import db from "../db/knex";
 import { getWeekDates, dateToDayOfWeek } from "../utils/dateUtils";
 
@@ -50,23 +50,16 @@ export async function addException(slot_id: number, exception_date: string, payl
   }
 }
 
-/**
- * Fetch slots for a given week starting at `weekStartISO` (YYYY-MM-DD)
- * Returns: { date: 'YYYY-MM-DD', slots: [{slotId, start_time, end_time, isException}] }
- */
 export async function fetchSlotsForWeek(weekStartISO: string) {
   const dates = getWeekDates(weekStartISO);
 
-  // 1) Recurring slots for the days in the week
   const daySet = Array.from(new Set(dates.map(dateToDayOfWeek)));
   const recurringSlots: RecurringSlot[] = await db("slots").whereIn("day_of_week", daySet).select("*");
 
-  // 2) Raw exceptions in date range
   const rawExceptions: ExceptionRowRaw[] = await db("exceptions")
     .whereBetween("exception_date", [dates[0], dates[6]])
     .select("*");
 
-  // 3) Normalize exceptions so comparison is reliable
   const exceptions: ExceptionRow[] = rawExceptions.map((e) => {
     let exDateStr: string;
     if (e.exception_date instanceof Date) {
@@ -89,9 +82,6 @@ export async function fetchSlotsForWeek(weekStartISO: string) {
     };
   });
 
-  // DEBUG: print what we loaded (remove after verification)
-
-  // 4) Merge recurring + exceptions into per-date slots
   const result: { date: string; slots: Array<any> }[] = [];
 
   for (const date of dates) {
@@ -104,7 +94,7 @@ export async function fetchSlotsForWeek(weekStartISO: string) {
       const ex = exceptions.find((e) => Number(e.slot_id) === Number(base.id) && e.exception_date === date);
       if (ex) {
         if (ex.is_deleted) {
-          continue; // skip this slot for this date
+          continue; 
         } else {
           daySlots.push({
             slotId: base.id,
@@ -131,7 +121,6 @@ export async function fetchSlotsForWeek(weekStartISO: string) {
 }
 
 
-// remove an exception row for a given slot_id + exception_date
 export async function removeExceptionBySlotAndDate(slot_id: number, exception_date: string): Promise<boolean> {
   const existing = await db("exceptions").where({ slot_id, exception_date }).first();
   if (!existing) return false;
@@ -139,7 +128,6 @@ export async function removeExceptionBySlotAndDate(slot_id: number, exception_da
   return true;
 }
 
-// remove exception by its id
 export async function deleteExceptionById(id: number): Promise<boolean> {
   const existing = await db("exceptions").where({ id }).first();
   if (!existing) return false;

@@ -1,32 +1,48 @@
-import { useEffect,useRef,useState } from "react";
+// hooks/useSlots.ts - REPLACE ENTIRE FILE
+import { useEffect, useRef, useState } from "react";
 import { fetchWeek } from "../api/slots";
-import { nextWeekStart,todayWeekStart } from "../utils/date";
+import { nextWeekStart, todayWeekStart, getWeekStartFormatDate } from "../utils/date";
+import dayjs from 'dayjs';
 
-export function useSlotsInfinite(initialWeek?:string){
-    const start = initialWeek ?? todayWeekStart();
-    const [weeks,setWeeks] = useState<{weekStart:string,data:any}[]>([]);
-    const current = useRef(start);
+export function useSlotsInfinite(initialWeek?: string) {
+  const [weeks, setWeeks] = useState<{weekStart: string, data: any}[]>([]);
+  const [loading, setLoading] = useState(false);
+  const current = useRef(initialWeek ?? todayWeekStart());
 
-    const loadingRef = useRef(false);
+  const loadNext = async () => {
+    if (loading) return;
+    setLoading(true);
 
-    async function loadNext(){
-        if(loadingRef.current) return;
-        loadingRef.current = true;
-
-        try{
-            const weekStart = current.current
-            const week = await fetchWeek(weekStart)
-            setWeeks(prev => [...prev,week]);
-            current.current = nextWeekStart(weekStart)
-        } finally{
-            loadingRef.current = false
-        }
+    try {
+      const weekStart = current.current;
+      console.log('Loading week:', weekStart); // Debug log
+      
+      const week = await fetchWeek(weekStart);
+      console.log('Loaded week data:', week); // Debug log
+      
+      setWeeks(prev => {
+        const exists = prev.some(w => w.weekStart === week.weekStart);
+        if (exists) return prev;
+        return [...prev, week];
+      });
+      
+      current.current = nextWeekStart(weekStart);
+    } catch (error) {
+      console.error('Failed to load week:', error);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    useEffect(()=>{
-        loadNext();
-    },[])
+  const loadInitialWeeks = async () => {
+    for (let i = 0; i < 8; i++) {
+      await loadNext();
+    }
+  };
 
+  useEffect(() => {
+    loadInitialWeeks();
+  }, []);
 
-    return {weeks,loadNext}
+  return { weeks, loadNext, loading };
 }

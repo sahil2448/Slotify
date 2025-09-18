@@ -1,4 +1,4 @@
-// src/components/DayColumn.tsx
+// src/components/DayColumn.tsx - RESPONSIVE VERSION
 import React from "react";
 import SlotItem from "./SlotItem";
 import { 
@@ -6,7 +6,10 @@ import {
   Typography, 
   Paper,
   IconButton,
-  Chip
+  Chip,
+  Tooltip,
+  useTheme,
+  useMediaQuery
 } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import dayjs from "dayjs";
@@ -15,57 +18,137 @@ interface DayColumnProps {
   date: string;
   slots: any[];
   onAdd: () => void;
+  onAddException: (slotId: number, date: string, startTime: string, endTime: string) => void;
 }
 
-export default function DayColumn({ date, slots, onAdd }: DayColumnProps) {
+export default function DayColumn({ date, slots, onAdd, onAddException }: DayColumnProps) {
   const dayObj = dayjs(date);
   const isToday = dayObj.isSame(dayjs(), 'day');
   
-  const dayDisplay1 = dayObj.format('ddd, DD');
-  const dayDisplay2 = dayObj.format('MMMM');
-
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  
   return (
-    <Paper elevation={1} sx={{ p: 2, bgcolor: 'white' }} className="flex justify-between">
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+    <Paper 
+      elevation={isToday ? 3 : 1} 
+      sx={{ 
+        p: isMobile ? 1.5 : 2, 
+        bgcolor: isToday ? '#e3f2fd' : 'white',
+        mb: 2,
+        transition: 'all 0.2s ease-in-out',
+        borderLeft: isToday ? 4 : 0,
+        borderLeftColor: 'primary.main'
+      }}
+    >
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: isMobile ? 'flex-start' : 'center',
+        flexDirection: isMobile ? 'column' : 'row',
+        gap: isMobile ? 1 : 2,
+        mb: 2 
+      }}>
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 1,
+          flexWrap: 'wrap'
+        }}>
           <Typography 
-            variant="subtitle1" 
-            className={isToday ? "text-indigo-500" : "text-gray-500"}
-            fontWeight={isToday ? "bold" :  "bold"}
+            variant={isMobile ? "subtitle2" : "subtitle1"} 
+            color={isToday ? "primary" : "text.primary"}
+            fontWeight="bold"
           >
-            <p>{dayDisplay1} </p>
-            <div className="flex justify-center items-center gap-4"><p>{dayDisplay2}</p>
-                      {isToday && (
-            <Chip 
+            {dayObj.format(isMobile ? 'ddd, DD MMM' : 'ddd, DD MMMM')}
+          </Typography>
+          
+          {isToday && (
+            <Chip
               label="Today" 
               size="small" 
-              className="!bg-indigo-500 !text-white" 
+              color="primary"
               variant="filled"
-              sx={{ fontSize: '0.7rem', height: 20 }}
+              sx={{ 
+                fontSize: '0.7rem', 
+                height: isMobile ? 18 : 20,
+                fontWeight: 'bold'
+              }}
             />
-          )}</div>
-
-          </Typography>
-
+          )}
         </Box>
+        
+        {/* Add Button - Always Visible */}
+        <Tooltip title="Add new slot" arrow>
+          <IconButton 
+            onClick={onAdd}
+            color="primary" 
+            size={isMobile ? "small" : "medium"}
+            sx={{ 
+              bgcolor: 'primary.main', 
+              color: 'white',
+              minWidth: isMobile ? 32 : 40,
+              height: isMobile ? 32 : 40,
+              '&:hover': { 
+                bgcolor: 'primary.dark',
+                transform: 'scale(1.1)'
+              }
+            }}
+          >
+            <AddIcon fontSize={isMobile ? "small" : "medium"} />
+          </IconButton>
+        </Tooltip>
       </Box>
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+      {/* Slots Content */}
+      <Box sx={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        gap: isMobile ? 0.5 : 1 
+      }}>
         {slots.length === 0 ? (
           <Box sx={{ 
-            p: 3, 
+            p: isMobile ? 2 : 3, 
             textAlign: 'center', 
             bgcolor: 'grey.50', 
-            borderRadius: 1,
-            border: '1px dashed',
-            borderColor: 'grey.300'
+            borderRadius: 2,
+            border: '2px dashed',
+            borderColor: 'grey.300',
+            position: 'relative'
           }}>
-            <Typography variant="body2" color="text.secondary">
+            <Typography 
+              variant={isMobile ? "caption" : "body2"} 
+              color="text.secondary" 
+              sx={{ mb: 1 }}
+            >
               00:00 - 00:00
             </Typography>
-            <Typography variant="caption" color="text.secondary">
+            <Typography 
+              variant="caption" 
+              color="text.secondary"
+            >
               No slots scheduled
             </Typography>
+            
+            <Tooltip title="Click to add your first slot" arrow>
+              <IconButton
+                onClick={onAdd}
+                color="primary"
+                size={isMobile ? "small" : "medium"}
+                sx={{
+                  position: 'absolute',
+                  top: '50%',
+                  right: isMobile ? 4 : 8,
+                  transform: 'translateY(-50%)',
+                  opacity: 0.7,
+                  '&:hover': {
+                    opacity: 1,
+                    transform: 'translateY(-50%) scale(1.1)'
+                  }
+                }}
+              >
+                <AddIcon fontSize={isMobile ? "small" : "medium"} />
+              </IconButton>
+            </Tooltip>
           </Box>
         ) : (
           slots.map((slot: any) => (
@@ -73,7 +156,7 @@ export default function DayColumn({ date, slots, onAdd }: DayColumnProps) {
               key={slot.slotId} 
               date={date} 
               slot={slot} 
-              onAddException={() => onAdd()} 
+              onAddException={() => onAddException(slot.slotId, date, slot.start_time, slot.end_time)}
               onRefresh={() => window.location.reload()}
             />
           ))
