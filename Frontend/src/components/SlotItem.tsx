@@ -1,5 +1,17 @@
+// src/components/SlotItem.tsx
 import React, { useState } from "react";
 import { deleteExceptionBySlotDate, deleteExceptionById } from "../api/slots";
+import { 
+  Box, 
+  Typography, 
+  IconButton, 
+  Chip,
+  Tooltip,
+  CircularProgress,
+  Paper
+} from "@mui/material";
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 type Props = {
   slot: {
@@ -38,37 +50,57 @@ export default function SlotItem({ slot, date, onAddException, onRefresh }: Prop
   };
 
   return (
-    <div className="flex items-center justify-between bg-white/90 border rounded px-3 py-2 my-1">
-      <div>
-        <div className="text-sm font-medium">
+    <Paper 
+      variant="outlined" 
+      sx={{ 
+        p: 2, 
+        bgcolor: 'grey.50',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}
+    >
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography variant="body1" fontWeight="medium">
           {slot.start_time} - {slot.end_time}
-        </div>
-        {slot.isException && <div className="text-xs text-indigo-600">Exception</div>}
-      </div>
-
-      <div className="flex items-center gap-2">
-        <button
-          className="p-2"
-          title="Add exception"
-          onClick={() => onAddException?.(slot.slotId)}
-          disabled={loading}
-        >
-          <svg className="w-5 h-5 text-indigo-600" viewBox="0 0 24 24" fill="none">
-            <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
-
+        </Typography>
         {slot.isException && (
-          <button
-            onClick={handleUndo}
-            className="text-red-500 text-xs ml-2 px-2 py-1 border rounded"
-            disabled={loading}
-            aria-busy={loading}
-          >
-            {loading ? "Undoing…" : "Undo"}
-          </button>
+          <Chip 
+            label="Exception" 
+            size="small" 
+            color="primary" 
+            variant="outlined"
+          />
         )}
-      </div>
-    </div>
+      </Box>
+
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        <Tooltip title="Add exception">
+          <IconButton
+            onClick={() => onAddException?.(slot.slotId)}
+            disabled={loading}
+            size="small"
+            color="primary"
+          >
+            <AddCircleOutlineIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+        
+        <Tooltip title="Delete slot">
+          <IconButton
+            onClick={handleUndo}
+            disabled={loading}
+            size="small"
+            color="error"
+          >
+            {loading ? (
+              <CircularProgress size={16} />
+            ) : (
+              <DeleteIcon fontSize="small" />
+            )}
+          </IconButton>
+        </Tooltip>
+      </Box>
+    </Paper>
   );
 }
