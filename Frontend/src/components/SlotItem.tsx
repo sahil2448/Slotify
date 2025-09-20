@@ -74,18 +74,18 @@ export default function SlotItem({ slot, date, onAddException, onRefresh }: Prop
         }}
       >
         <Paper
-          variant="outlined"
+          // variant="outlined"
           sx={{
-            flex: 1,
-            p: isMobile ? 1.5 : 2,
-            bgcolor: slot.isException ? 'warning.light' : 'grey.50',
-            borderRadius: 2,
-            position: 'relative',
-            minHeight: isMobile ? 'auto' : '56px',
-            display: 'flex',
-            flexDirection: isMobile ? 'column' : 'row',
-            alignItems: isMobile ? 'stretch' : 'center',
-            gap: isMobile ? 1 : 2
+                          display: 'flex',
+                          flex: 1,
+                          // p: isMobile ? 1.5 : 2,
+                          border:"none",
+                          boxShadow:"none",
+
+              alignItems: isMobile ? 'stretch' : 'center',
+                            gap: isMobile ? 1 : 2
+
+
           }}
         >
           {/* Time Display */}
@@ -95,7 +95,16 @@ export default function SlotItem({ slot, date, onAddException, onRefresh }: Prop
               alignItems: 'center',
               gap: 1,
               flex: 1,
-              minWidth: 0 // Allow shrinking
+              minWidth: 0 ,// Allow shrinking
+              bgcolor: slot.isException ? 'warning.light' : 'grey.50',
+              border: '1px solid #e0e0e0',
+              borderRadius: 2,
+              px:1,
+              py:1,
+              position: 'relative',
+              justifyContent: 'center',
+              minHeight: isMobile ? 'auto' : '40px',
+              flexDirection: isMobile ? 'column' : 'row',
             }}
           >
             <Typography 
@@ -138,20 +147,14 @@ export default function SlotItem({ slot, date, onAddException, onRefresh }: Prop
               <Tooltip title="Add exception for this date" arrow>
                 <IconButton
                   onClick={() => onAddException?.(slot.slotId)}
-                  color="primary"
+                  color="default"
                   size={isMobile ? "small" : "medium"}
                   disabled={loading}
-                  sx={{
-                    bgcolor: 'primary.main',
-                    color: 'white',
-                    '&:hover': { 
-                      bgcolor: 'primary.dark',
-                      transform: 'scale(1.05)'
-                    },
-                    '&:disabled': {
-                      bgcolor: 'grey.400'
-                    }
-                  }}
+                                 sx={{
+                  '&:hover': {
+                    transform: 'scale(1.05)'
+                  }
+                }}
                 >
                   <AddCircleOutlineOutlinedIcon fontSize={isMobile ? "small" : "medium"} />
                 </IconButton>
@@ -166,7 +169,7 @@ export default function SlotItem({ slot, date, onAddException, onRefresh }: Prop
                 onClick={() => setDeleteDialogOpen(true)}
                 disabled={loading}
                 size={isMobile ? "small" : "medium"}
-                color="error"
+                color="default"
                 sx={{
                   '&:hover': {
                     transform: 'scale(1.05)'

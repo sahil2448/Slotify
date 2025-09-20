@@ -57,7 +57,10 @@ export default function WeekScroller({ weeks, onAddForDate, selectedDate, onAddE
         justifyContent: 'center',
         mb: 2,
         gap: 2
-      }}>
+      }}
+      
+      className="border-b-2 border-gray-200 pb-2 mb-4"
+      >
         <IconButton 
           onClick={handlePrevWeek} 
           disabled={currentWeekIndex === 0}
@@ -109,12 +112,10 @@ export default function WeekScroller({ weeks, onAddForDate, selectedDate, onAddE
                     </Typography>
                   </Box>
                 }
-                variant={isToday ? "filled" : "outlined"}
-                className={isToday ? "!bg-indigo-500 !text-white" : isInSelectedMonth ? "!bg-gray-200 !text-gray-800" : "!bg-gray-100 !text-gray-400"}
+                className={isToday ? "!bg-indigo-500 !text-white" : isInSelectedMonth ? "bg-white !text-gray-800" : " bg-white !text-gray-400"}
                 sx={{ 
                   minWidth: isMobile ? 50 : 60, 
                   height: isMobile ? 50 : 60,
-                  borderRadius: 2,
                   opacity: isInSelectedMonth ? 1 : 0.5
                 }}
               />

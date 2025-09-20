@@ -33,66 +33,67 @@ export default function DayColumn({ date, slots, onAdd, onAddException }: DayCol
       elevation={isToday ? 3 : 1} 
       sx={{ 
         p: isMobile ? 1.5 : 2, 
-        bgcolor: isToday ? '#e3f2fd' : 'white',
+        display: 'flex',
+        justifyContent: 'space-between',
+        bgcolor:'white',
+        border:"none",
+        boxShadow:"none",
         mb: 2,
         transition: 'all 0.2s ease-in-out',
-        borderLeft: isToday ? 4 : 0,
-        borderLeftColor: 'primary.main'
       }}
     >
       <Box sx={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
-        alignItems: isMobile ? 'flex-start' : 'center',
-        flexDirection: isMobile ? 'column' : 'row',
+        alignItems:'flex-start',
+        flexDirection: 'column',
+
         gap: isMobile ? 1 : 2,
+        border:"none",
+
         mb: 2 
       }}>
         <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
+          display: 'flex',
+          flexDirection:'column', 
+          alignItems: 'flex-start', 
           gap: 1,
           flexWrap: 'wrap'
         }}>
           <Typography 
             variant={isMobile ? "subtitle2" : "subtitle1"} 
-            color={isToday ? "primary" : "text.primary"}
             fontWeight="bold"
+            className={isToday ? 'text-indigo-500' : ''}
           >
             {dayObj.format(isMobile ? 'ddd, DD MMM' : 'ddd, DD MMMM')}
           </Typography>
           
           {isToday && (
-            <Chip
-              label="Today" 
-              size="small" 
-              color="primary"
-              variant="filled"
-              sx={{ 
-                fontSize: '0.7rem', 
-                height: isMobile ? 18 : 20,
-                fontWeight: 'bold'
-              }}
-            />
+                      <Typography 
+            variant={isMobile ? "subtitle2" : "subtitle1"} 
+            fontWeight="bold"
+            className={isToday ? 'text-indigo-500' : ''}
+          >
+            (Today)
+          </Typography>
+            
           )}
         </Box>
         
-        {/* Add Button - Always Visible */}
         <Tooltip title="Add new slot" arrow>
           <IconButton 
             onClick={onAdd}
-            color="primary" 
             size={isMobile ? "small" : "medium"}
             sx={{ 
-              bgcolor: 'primary.main', 
               color: 'white',
-              minWidth: isMobile ? 32 : 40,
-              height: isMobile ? 32 : 40,
+              width: 32,
+              height:32,
+              borderRadius:2,
               '&:hover': { 
-                bgcolor: 'primary.dark',
-                transform: 'scale(1.1)'
+                transform: 'scale(1.03)'
               }
             }}
+            className="!bg-indigo-400 !text-white hover:!bg-indigo-500 transition-all duration-200"
           >
             <AddIcon fontSize={isMobile ? "small" : "medium"} />
           </IconButton>
