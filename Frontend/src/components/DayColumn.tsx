@@ -115,7 +115,9 @@ export default function DayColumn({ date, slots, onAdd, onAddException }: DayCol
             border: '2px dashed',
             borderColor: 'grey.300',
             position: 'relative'
-          }}>
+          }}
+        className="w-[9rem] sm:w-[16rem]"
+          >
             <Typography 
               variant={isMobile ? "caption" : "body2"} 
               color="text.secondary" 
@@ -130,7 +132,7 @@ export default function DayColumn({ date, slots, onAdd, onAddException }: DayCol
               No slots scheduled
             </Typography>
             
-            <Tooltip title="Click to add your first slot" arrow>
+            {/* <Tooltip title="Click to add your first slot" arrow>
               <IconButton
                 onClick={onAdd}
                 color="primary"
@@ -149,7 +151,7 @@ export default function DayColumn({ date, slots, onAdd, onAddException }: DayCol
               >
                 <AddIcon fontSize={isMobile ? "small" : "medium"} />
               </IconButton>
-            </Tooltip>
+            </Tooltip> */}
           </Box>
         ) : (
           slots.map((slot: any) => (

@@ -18,7 +18,8 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  Container
+  Container,
+  CircularProgress
 } from "@mui/material";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import MenuIcon from '@mui/icons-material/Menu';
@@ -119,10 +120,10 @@ const handleAddException = (slotId: number, date: string, startTime: string, end
           />
 
 
-          <Box ref={loaderRef} sx={{ height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Typography variant="body2" color="text.secondary">
-              Loading more...
-            </Typography>
+          <Box ref={loaderRef} sx={{ height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center' }} >
+                <Box sx={{ display: 'flex' }}>
+                <CircularProgress />
+    </Box>
           </Box>
         </Container>
 

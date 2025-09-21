@@ -63,14 +63,14 @@ export async function fetchSlotsForWeek(weekStartISO: string) {
   const exceptions: ExceptionRow[] = rawExceptions.map((e) => {
     let exDateStr: string;
     if (e.exception_date instanceof Date) {
-  const dt = e.exception_date;
-  const y = dt.getFullYear();
-  const m = String(dt.getMonth() + 1).padStart(2, "0");
-  const d = String(dt.getDate()).padStart(2, "0");
-  exDateStr = `${y}-${m}-${d}`;
-} else {
-  exDateStr = String(e.exception_date).slice(0, 10);
-}
+      const dt = e.exception_date;
+      const y = dt.getFullYear();
+      const m = String(dt.getMonth() + 1).padStart(2, "0");
+      const d = String(dt.getDate()).padStart(2, "0");
+      exDateStr = `${y}-${m}-${d}`;
+    } else {
+      exDateStr = String(e.exception_date).slice(0, 10);
+    }
 
     return {
       id: Number(e.id),
@@ -94,7 +94,7 @@ export async function fetchSlotsForWeek(weekStartISO: string) {
       const ex = exceptions.find((e) => Number(e.slot_id) === Number(base.id) && e.exception_date === date);
       if (ex) {
         if (ex.is_deleted) {
-          continue; 
+          continue;
         } else {
           daySlots.push({
             slotId: base.id,

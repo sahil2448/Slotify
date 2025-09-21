@@ -17,7 +17,7 @@ import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
-import { createException } from '../api/slots';
+import { createException, deleteExceptionBySlotDate } from '../api/slots';
 
 interface ExceptionDialogProps {
   open: boolean;
@@ -39,6 +39,7 @@ export default function ExceptionDialog({
   onRefresh
 }: ExceptionDialogProps) {
   const [exceptionType, setExceptionType] = useState<'cancel' | 'modify'>('cancel');
+  const [flagForDelete, setFlagForDelete] = useState(false);
   const [newStartTime, setNewStartTime] = useState<Dayjs | null>(dayjs(`2000-01-01 ${originalStartTime}`));
   const [newEndTime, setNewEndTime] = useState<Dayjs | null>(dayjs(`2000-01-01 ${originalEndTime}`));
   const [loading, setLoading] = useState(false);
@@ -47,6 +48,9 @@ export default function ExceptionDialog({
     try {
       setLoading(true);
       
+      if(exceptionType === 'cancel'){
+        setFlagForDelete(true);
+      }
       const payload = {
         exception_date: date,
         is_deleted: exceptionType === 'cancel',
@@ -55,6 +59,12 @@ export default function ExceptionDialog({
       };
 
       await createException(slotId, payload);
+
+      if(flagForDelete){
+          setLoading(true);
+          await deleteExceptionBySlotDate(slotId, date);
+      }
+
       onRefresh();
       onClose();
     } catch (error) {

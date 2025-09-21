@@ -72,6 +72,7 @@ export default function SlotItem({ slot, date, onAddException, onRefresh }: Prop
           gap: 1,
           mb: 1
         }}
+        className="w-[9rem] sm:w-[16rem]"
       >
         <Paper
           // variant="outlined"
@@ -83,7 +84,8 @@ export default function SlotItem({ slot, date, onAddException, onRefresh }: Prop
                           boxShadow:"none",
 
               alignItems: isMobile ? 'stretch' : 'center',
-                            gap: isMobile ? 1 : 2
+                            gap: isMobile ? 1 : 2,
+                            flexDirection:isMobile ? 'column' : 'row',
 
 
           }}
@@ -137,9 +139,9 @@ export default function SlotItem({ slot, date, onAddException, onRefresh }: Prop
           <Box
             sx={{
               display: 'flex',
-              alignItems: 'center',
+              alignItems: isMobile ? 'flex-end' : 'center',
               gap: 0.5,
-              justifyContent: isMobile ? 'space-between' : 'flex-end',
+              justifyContent:'center',
               flexShrink: 0
             }}
           >
