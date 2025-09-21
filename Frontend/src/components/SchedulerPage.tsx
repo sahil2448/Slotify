@@ -93,7 +93,7 @@ const handleAddException = (slotId: number, date: string, startTime: string, end
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} >
-      <Box sx={{ bgcolor: 'gray.50', border:"none",  minHeight: '100vh' }} >
+      <Box sx={{  border:"none",  minHeight: '100vh' }} className="bg-gray-100">
         <Container maxWidth="sm" sx={{ px: 2, py: 2 }}>
           <Box sx={{ mb: 3 }}>
             <DatePicker

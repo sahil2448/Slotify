@@ -4,6 +4,7 @@ import Navbar from './layouts/Navbar'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import SchedulePage from './components/SchedulerPage'
 import { Toaster } from 'react-hot-toast'
+import Homepage from './HomePage'
 
 function App() {
     return (
@@ -11,7 +12,7 @@ function App() {
         <div>
           <Navbar/>
           <Routes>
-            <Route path='/' element={<h1 className='text-3xl text-black'>App Page</h1>} />
+            <Route path='/' element={<Homepage/>} />
             <Route path='/schedule' element={<SchedulePage/>} />
           </Routes>
 
