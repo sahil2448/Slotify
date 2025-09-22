@@ -1,10 +1,11 @@
+// src/components/SchedulerPage.tsx - SMART LOADING VERSION
 import React, { useRef, useCallback, useState, useMemo } from "react";
 import { useSlotsInfinite } from "../hooks/useSlots";
 import WeekScroller from "./WeekScroller";
 import { createSlot } from "../api/slots";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import ExceptionDialog from './ExceptionDialog'; // Add import
+import ExceptionDialog from './ExceptionDialog';
 
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { 
@@ -19,59 +20,145 @@ import {
   DialogActions,
   Button,
   Container,
-  CircularProgress
+  CircularProgress,
+  Alert,
+  Chip
 } from "@mui/material";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import MenuIcon from '@mui/icons-material/Menu';
 import dayjs, { Dayjs } from "dayjs";
 
 export default function SchedulerPage() {
-  const { weeks, loadNext } = useSlotsInfinite();
+  const today = dayjs();
+  const { 
+    weeks, 
+    loadNext, 
+    loading, 
+    loadWeeksForMonth, 
+    shouldLoadMore, 
+    hasLoadedInitialData,
+    getLoadingStats
+  } = useSlotsInfinite();
+  
   const loaderRef = useRef<HTMLDivElement|null>(null);
-  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());
+  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(today);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [startTime, setStartTime] = useState<Dayjs | null>(dayjs().hour(9).minute(0));
-  const [endTime, setEndTime] = useState<Dayjs | null>(dayjs().hour(10).minute(0));
+  const [startTime, setStartTime] = useState<Dayjs | null>(today.hour(9).minute(0));
+  const [endTime, setEndTime] = useState<Dayjs | null>(today.hour(10).minute(0));
   const [exceptionDialogOpen, setExceptionDialogOpen] = useState(false);
-const [selectedSlot, setSelectedSlot] = useState<{slotId: number, date: string, startTime: string, endTime: string} | null>(null);
+  const [selectedSlot, setSelectedSlot] = useState<{slotId: number, date: string, startTime: string, endTime: string} | null>(null);
+  const [pastDateError, setPastDateError] = useState(false);
+  const [monthLoadingComplete, setMonthLoadingComplete] = useState(false);
 
+  const handleAddException = (slotId: number, date: string, startTime: string, endTime: string) => {
+    const slotDate = dayjs(date);
+    if (slotDate.isBefore(today, 'day')) {
+      setPastDateError(true);
+      setTimeout(() => setPastDateError(false), 3000);
+      return;
+    }
 
+    setSelectedSlot({ slotId, date, startTime, endTime });
+    setExceptionDialogOpen(true);
+  };
 
-const handleAddException = (slotId: number, date: string, startTime: string, endTime: string) => {
-  setSelectedSlot({ slotId, date, startTime, endTime });
-  setExceptionDialogOpen(true);
-};
-
-
+  // Enhanced filtering
   const filteredWeeks = useMemo(() => {
     if (!selectedDate) return weeks;
     
+    const targetMonth = selectedDate.month();
+    const targetYear = selectedDate.year();
+    
     return weeks.filter(week => {
-      // Check if any day in the week belongs to the selected month/year
       return week.data.some((day: any) => {
         const dayDate = dayjs(day.date);
-        return dayDate.month() === selectedDate.month() && 
-               dayDate.year() === selectedDate.year();
+        const dayMonth = dayDate.month();
+        const dayYear = dayDate.year();
+        
+        if (dayYear === targetYear && dayMonth === targetMonth) {
+          return true;
+        }
+        
+        // Include adjacent month days that appear in week view
+        if (Math.abs(dayMonth - targetMonth) <= 1 || 
+            (targetMonth === 0 && dayMonth === 11) || 
+            (targetMonth === 11 && dayMonth === 0)) {
+          const firstOfMonth = selectedDate.startOf('month');
+          const lastOfMonth = selectedDate.endOf('month');
+          const firstWeekStart = firstOfMonth.startOf('week').day(1);
+          const lastWeekStart = lastOfMonth.startOf('week').day(1);
+          
+          return dayDate.isSame(firstWeekStart, 'week') || dayDate.isSame(lastWeekStart, 'week');
+        }
+        
+        return false;
       });
     });
   }, [weeks, selectedDate]);
 
+  // Smart loading for month changes
   React.useEffect(() => {
-    if (!loaderRef.current) return;
+    if (!selectedDate || !hasLoadedInitialData) return;
+
+    setMonthLoadingComplete(false);
+    
+    const loadMonthData = async () => {
+      if (loadWeeksForMonth) {
+        await loadWeeksForMonth(selectedDate);
+        
+        // Check if we need to load more weeks
+        if (shouldLoadMore && shouldLoadMore(selectedDate)) {
+          console.log('Loading additional weeks for better coverage...');
+          for (let i = 0; i < 4; i++) {
+            await loadNext();
+          }
+        }
+      }
+      setMonthLoadingComplete(true);
+    };
+
+    loadMonthData();
+  }, [selectedDate, hasLoadedInitialData]);
+
+  // Remove the infinite scroll observer that was causing issues
+  React.useEffect(() => {
+    if (!loaderRef.current || !hasLoadedInitialData) return;
+
+    const stats = getLoadingStats();
+    if (stats.hasReachedLimit) return; // Don't observe if we've reached limit
+
     const obs = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting) loadNext();
-    }, { rootMargin: "200px" });
+      if (entries[0].isIntersecting && shouldLoadMore && selectedDate && shouldLoadMore(selectedDate)) {
+        console.log('User scrolled to end, loading more weeks...');
+        loadNext();
+      }
+    }, { rootMargin: "400px" }); // Larger margin to prevent frequent triggers
+
     obs.observe(loaderRef.current);
     return () => obs.disconnect();
-  }, [loaderRef]);
+  }, [hasLoadedInitialData, selectedDate]);
 
   const handleAddForDate = async (date: string) => {
-    setSelectedDate(dayjs(date));
+    const selectedDateObj = dayjs(date);
+    if (selectedDateObj.isBefore(today, 'day')) {
+      setPastDateError(true);
+      setTimeout(() => setPastDateError(false), 3000);
+      return;
+    }
+
+    setSelectedDate(selectedDateObj);
     setDialogOpen(true);
   };
 
   const handleCreateSlot = async () => {
     if (!selectedDate || !startTime || !endTime) return;
+    
+    if (selectedDate.isBefore(today, 'day')) {
+      setPastDateError(true);
+      setTimeout(() => setPastDateError(false), 3000);
+      setDialogOpen(false);
+      return;
+    }
     
     const dow = selectedDate.day();
     try {
@@ -89,12 +176,45 @@ const handleAddException = (slotId: number, date: string, startTime: string, end
 
   const handleDateChange = (newDate: Dayjs | null) => {
     setSelectedDate(newDate);
+    setMonthLoadingComplete(false);
   };
 
+  const loadingStats = getLoadingStats();
+
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs} >
-      <Box sx={{  border:"none",  minHeight: '100vh' }} className="bg-gray-100">
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <Box sx={{ border: "none", minHeight: '100vh' }} className="bg-gray-100">
         <Container maxWidth="sm" sx={{ px: 2, py: 2 }}>
+          {/* Loading Stats Debug Info (remove in production) */}
+          {/* {process.env.NODE_ENV === 'development' && (
+            <Alert 
+              severity="info" 
+              sx={{ mb: 2 }}
+              action={
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Chip 
+                    label={`${loadingStats.totalWeeksLoaded}/${loadingStats.maxLimit} weeks`} 
+                    size="small"
+                    color={loadingStats.hasReachedLimit ? "error" : "primary"}
+                  />
+                </Box>
+              }
+            >
+              Smart Loading Active • {loadingStats.hasReachedLimit ? "Limit Reached" : "Performance Optimized"}
+            </Alert>
+          )} */}
+
+          {/* Past date error alert */}
+          {pastDateError && (
+            <Alert 
+              severity="warning" 
+              sx={{ mb: 2 }}
+              onClose={() => setPastDateError(false)}
+            >
+              Cannot add slots or exceptions for past dates. Please select a future date.
+            </Alert>
+          )}
+
           <Box sx={{ mb: 3 }}>
             <DatePicker
               value={selectedDate}
@@ -111,20 +231,61 @@ const handleAddException = (slotId: number, date: string, startTime: string, end
             />
           </Box>
 
+          {/* Show loading state while initial data or month data is loading */}
+          {!hasLoadedInitialData || (selectedDate && !monthLoadingComplete) ? (
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center', 
+              minHeight: 200,
+              flexDirection: 'column',
+              gap: 2
+            }}>
+              <CircularProgress />
+              <Typography>
+                {!hasLoadedInitialData 
+                  ? "Loading initial schedule data..." 
+                  : `Loading ${selectedDate?.format('MMMM YYYY')} schedule...`
+                }
+              </Typography>
+            </Box>
+          ) : (
+            <WeekScroller 
+              weeks={filteredWeeks}
+              onAddForDate={handleAddForDate}
+              selectedDate={selectedDate}
+              onAddException={handleAddException}
+            />
+          )}
 
-          <WeekScroller 
-            weeks={filteredWeeks}
-            onAddForDate={handleAddForDate}
-            selectedDate={selectedDate}
-            onAddException={handleAddException}
-          />
+          {/* Smart loading indicator */}
+          {loading && hasLoadedInitialData && monthLoadingComplete && (
+            <Box 
+              ref={loaderRef} 
+              sx={{ 
+                height: 64, 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                flexDirection: 'column',
+                gap: 1
+              }}
+            >
+              <CircularProgress size={20} />
+              <Typography variant="caption" color="text.secondary">
+                Loading more data... ({loadingStats.totalWeeksLoaded}/{loadingStats.maxLimit} weeks)
+              </Typography>
+            </Box>
+          )}
 
-
-          <Box ref={loaderRef} sx={{ height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center' }} >
-                <Box sx={{ display: 'flex' }}>
-                <CircularProgress />
-    </Box>
-          </Box>
+          {/* Show message when limit is reached */}
+          {loadingStats.hasReachedLimit && (
+            <Box sx={{ textAlign: 'center', py: 2 }}>
+              <Typography variant="caption" color="text.secondary">
+                📅 Loaded 6 months of data. Change month to load more specific dates.
+              </Typography>
+            </Box>
+          )}
         </Container>
 
         <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
@@ -149,20 +310,21 @@ const handleAddException = (slotId: number, date: string, startTime: string, end
           </DialogActions>
         </Dialog>
       </Box>
-        {selectedSlot && (
-          <ExceptionDialog
-            open={exceptionDialogOpen}
-         onClose={() => {
-              setExceptionDialogOpen(false);
-              setSelectedSlot(null);
-            }}
-            slotId={selectedSlot.slotId}
-            date={selectedSlot.date}
-            originalStartTime={selectedSlot.startTime}
-            originalEndTime={selectedSlot.endTime}
-            onRefresh={() => window.location.reload()}
-  />
-)}
+      
+      {selectedSlot && (
+        <ExceptionDialog
+          open={exceptionDialogOpen}
+          onClose={() => {
+            setExceptionDialogOpen(false);
+            setSelectedSlot(null);
+          }}
+          slotId={selectedSlot.slotId}
+          date={selectedSlot.date}
+          originalStartTime={selectedSlot.startTime}
+          originalEndTime={selectedSlot.endTime}
+          onRefresh={() => window.location.reload()}
+        />
+      )}
     </LocalizationProvider>
   );
 }
