@@ -65,7 +65,8 @@ export default function ExceptionDialog({
           await deleteExceptionBySlotDate(slotId, date);
       }
 
-      onRefresh();
+      // onRefresh();
+      
       onClose();
     } catch (error) {
       console.error('Failed to create exception:', error);

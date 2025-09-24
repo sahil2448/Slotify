@@ -144,7 +144,7 @@ export default function WeekScroller({ weeks, onAddForDate, selectedDate, onAddE
       if (todayIndex !== -1 && verticalScrollRef.current && todayRef.current) {
         todayRef.current.scrollIntoView({
           behavior: 'smooth',
-          block: 'center',
+          block: 'start',
           inline: 'nearest'
         });
       }
