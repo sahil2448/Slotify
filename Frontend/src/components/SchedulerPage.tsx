@@ -185,26 +185,7 @@ export default function SchedulerPage() {
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box sx={{ border: "none", minHeight: '100vh' }} className="bg-gray-100">
         <Container maxWidth="sm" sx={{ px: 2, py: 2 }}>
-          {/* Loading Stats Debug Info (remove in production) */}
-          {/* {process.env.NODE_ENV === 'development' && (
-            <Alert 
-              severity="info" 
-              sx={{ mb: 2 }}
-              action={
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Chip 
-                    label={`${loadingStats.totalWeeksLoaded}/${loadingStats.maxLimit} weeks`} 
-                    size="small"
-                    color={loadingStats.hasReachedLimit ? "error" : "primary"}
-                  />
-                </Box>
-              }
-            >
-              Smart Loading Active • {loadingStats.hasReachedLimit ? "Limit Reached" : "Performance Optimized"}
-            </Alert>
-          )} */}
 
-          {/* Past date error alert */}
           {pastDateError && (
             <Alert 
               severity="warning" 
