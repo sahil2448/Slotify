@@ -1,7 +1,7 @@
 // hooks/useSlots.ts - SMART LOADING VERSION
 import { useEffect, useRef, useState } from "react";
 import { fetchWeek } from "../api/slots";
-import { nextWeekStart, todayWeekStart, getWeekStartFormatDate } from "../utils/date";
+import { nextWeekStart, todayWeekStart } from "../utils/date";
 import dayjs from 'dayjs';
 
 export function useSlotsInfinite(initialWeek?: string) {

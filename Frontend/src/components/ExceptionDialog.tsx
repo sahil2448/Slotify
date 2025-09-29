@@ -1,5 +1,5 @@
 // src/components/ExceptionDialog.tsx - NEW FILE
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -36,7 +36,7 @@ export default function ExceptionDialog({
   date,
   originalStartTime,
   originalEndTime,
-  onRefresh
+
 }: ExceptionDialogProps) {
   const [exceptionType, setExceptionType] = useState<'cancel' | 'modify'>('cancel');
   const [flagForDelete, setFlagForDelete] = useState(false);

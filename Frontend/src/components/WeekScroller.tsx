@@ -1,9 +1,9 @@
 // src/components/WeekScroller.tsx - UPDATED WITH AUTO-SCROLL TO TODAY
-import React, { useState, useEffect, useRef } from "react";
+import  {  useEffect, useRef } from "react";
 import DayColumn from "./DayColumn";
 import { 
   Box, 
-  Paper,
+  
   Typography,
   Chip,
   Alert,

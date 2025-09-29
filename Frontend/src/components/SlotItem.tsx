@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { deleteExceptionBySlotDate, deleteExceptionById, deleteSlot } from "../api/slots";
 import {
   Box,

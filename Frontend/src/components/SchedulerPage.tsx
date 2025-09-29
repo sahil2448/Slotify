@@ -1,5 +1,5 @@
 // src/components/SchedulerPage.tsx - SMART LOADING VERSION
-import React, { useRef, useCallback, useState, useMemo } from "react";
+import React, { useRef, useState, useMemo } from "react";
 import { useSlotsInfinite } from "../hooks/useSlots";
 import WeekScroller from "./WeekScroller";
 import { createSlot } from "../api/slots";
