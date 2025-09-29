@@ -19,51 +19,51 @@ const Homepage: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        delayChildren: 0.3,
-        staggerChildren: 0.2
-      }
-    }
-  };
+  // const containerVariants = {
+  //   hidden: { opacity: 0 },
+  //   visible: {
+  //     opacity: 1,
+  //     transition: {
+  //       delayChildren: 0.3,
+  //       staggerChildren: 0.2
+  //     }
+  //   }
+  // };
 
-  const leftItemVariants = {
-    hidden: { x: -50, opacity: 0 },
-    visible: {
-      x: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        ease: 'easeOut'
-      }
-    }
-  };
+  // const leftItemVariants = {
+  //   hidden: { x: -50, opacity: 0 },
+  //   visible: {
+  //     x: 0,
+  //     opacity: 1,
+  //     transition: {
+  //       duration: 0.6,
+  //       ease: 'easeOut'
+  //     }
+  //   }
+  // };
 
-  const rightItemVariants = {
-    hidden: { x: 50, opacity: 0 },
-    visible: {
-      x: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        ease: 'easeOut'
-      }
-    }
-  };
+  // const rightItemVariants = {
+  //   hidden: { x: 50, opacity: 0 },
+  //   visible: {
+  //     x: 0,
+  //     opacity: 1,
+  //     transition: {
+  //       duration: 0.6,
+  //       ease: 'easeOut'
+  //     }
+  //   }
+  // };
 
-  const floatingVariants = {
-    floating: {
-      y: [-10, 10, -10],
-      transition: {
-        duration: 3,
-        repeat: Infinity,
-        ease: 'easeInOut'
-      }
-    }
-  };
+  // const floatingVariants = {
+  //   floating: {
+  //     y: [-10, 10, -10],
+  //     transition: {
+  //       duration: 3,
+  //       repeat: Infinity,
+  //       ease: 'easeInOut'
+  //     }
+  //   }
+  // };
 
 
   return (
@@ -90,7 +90,7 @@ const Homepage: React.FC = () => {
           background: 'rgba(59, 130, 246, 0.1)',
           zIndex: 0
         }}
-        variants={floatingVariants}
+        // variants={floatingVariants}
         animate="floating"
       />
       
@@ -105,7 +105,7 @@ const Homepage: React.FC = () => {
           background: 'rgba(139, 92, 246, 0.08)',
           zIndex: 0
         }}
-        variants={floatingVariants}
+        // variants={floatingVariants}
         animate="floating"
         transition={{ delay: 1 }}
       />
@@ -119,7 +119,7 @@ const Homepage: React.FC = () => {
         }}
       >
         <motion.div
-          variants={containerVariants}
+          // variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
@@ -134,7 +134,9 @@ const Homepage: React.FC = () => {
             }}
           >
             {/* Left Side - Hero Content */}
-            <motion.div variants={leftItemVariants}>
+            <motion.div
+            //  variants={leftItemVariants}
+             >
               <Box 
                 sx={{ 
                   flex: 1,
@@ -215,7 +217,9 @@ const Homepage: React.FC = () => {
             </motion.div>
 
             {/* Right Side - Feature Cards */}
-            <motion.div variants={rightItemVariants}>
+            <motion.div 
+            // variants={rightItemVariants}
+            >
               <Box
                 sx={{
                   flex: 1,

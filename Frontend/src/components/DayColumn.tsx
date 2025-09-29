@@ -1,5 +1,4 @@
 // src/components/DayColumn.tsx - UPDATED WITH PAST DAY HANDLING
-import React from "react";
 import SlotItem from "./SlotItem";
 import { 
   Box, 
