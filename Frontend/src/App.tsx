@@ -13,7 +13,7 @@ function App() {
           <Navbar/>
           <Routes>
             <Route path='/' element={<Homepage/>} />
-            <Route path='/schedule' element={<SchedulePage/>} />
+            <Route path='/schedule'  element={<SchedulePage/>} />
           </Routes>
 
           

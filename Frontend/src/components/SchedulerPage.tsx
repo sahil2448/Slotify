@@ -182,9 +182,10 @@ export default function SchedulerPage() {
   const loadingStats = getLoadingStats();
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Box sx={{ border: "none", minHeight: '100vh' }} className="bg-gray-100">
-        <Container maxWidth="sm" sx={{ px: 2, py: 2 }}>
+    <div >
+          <LocalizationProvider dateAdapter={AdapterDayjs} >
+      <Box  className="bg-gray-100 ">
+        <Container maxWidth="sm" sx={{ px: 2, py: 2 }} > 
 
           {pastDateError && (
             <Alert 
@@ -196,7 +197,7 @@ export default function SchedulerPage() {
             </Alert>
           )}
 
-          <Box sx={{ mb: 3 }}>
+          <Box sx={{ mb: 3}} >
             <DatePicker
               value={selectedDate}
               onChange={handleDateChange}
@@ -307,5 +308,7 @@ export default function SchedulerPage() {
         />
       )}
     </LocalizationProvider>
+    </div>
+
   );
 }
