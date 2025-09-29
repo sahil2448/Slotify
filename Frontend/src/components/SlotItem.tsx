@@ -40,8 +40,6 @@ export default function SlotItem({ slot, date, isPastDay = false, onAddException
   
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const today = dayjs();
-  const slotDate = dayjs(date);
 
   const handleDelete = async () => {
     try {

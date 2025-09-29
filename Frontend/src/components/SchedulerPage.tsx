@@ -11,9 +11,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { 
   Box, 
   Typography, 
-  AppBar,
-  Toolbar,
-  IconButton,
+
   Dialog,
   DialogTitle,
   DialogContent,
@@ -22,10 +20,8 @@ import {
   Container,
   CircularProgress,
   Alert,
-  Chip
 } from "@mui/material";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
-import MenuIcon from '@mui/icons-material/Menu';
 import dayjs, { Dayjs } from "dayjs";
 
 export default function SchedulerPage() {

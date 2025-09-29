@@ -267,7 +267,7 @@ export default function WeekScroller({ weeks, onAddForDate, selectedDate, onAddE
           }
         }}
       >
-        {monthDays.map((day: any, index) => (
+        {monthDays.map((day: any) => (
           <Box
             key={day.date}
             ref={day.isToday ? todayRef : null}
