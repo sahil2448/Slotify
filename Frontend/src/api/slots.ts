@@ -1,7 +1,7 @@
 import toast from 'react-hot-toast';
 
 // const base = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000"; // development
-const base = "https://slotify-production-b248.up.railway.app/" // production
+const base = "https://slotify-production-b248.up.railway.app" // production
 export async function fetchWeek(weekstart: string) {
   try {
     const response = await fetch(`${base}/slots?weekStart=${weekstart}`);
@@ -15,8 +15,6 @@ export async function fetchWeek(weekstart: string) {
     throw error;
   }
 }
-
-
 // api/slots.ts - ADD THIS FUNCTION
 export async function deleteSlot(slotId: number) {
   try {
@@ -68,7 +66,6 @@ export async function createException(slotId:number, body:any) {
   });
   return res.json();
 }
-
 
 export async function deleteExceptionBySlotDate(slotId: number, exception_date: string) {
   const url = `${base}/slots/${slotId}/exceptions?exception_date=${encodeURIComponent(exception_date)}`;
