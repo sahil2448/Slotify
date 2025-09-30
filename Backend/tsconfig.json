@@ -12,6 +12,6 @@
     "resolveJsonModule": true,
     "types": ["node"]
   },
-  "include": ["src/**/*", "src/db/knexfile.ts"],
+  "include": ["src/**/*", "src/knexfile.ts", "dist/knexfile.js"],
   "exclude": ["node_modules", "dist"]
 }
