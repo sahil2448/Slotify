@@ -18,6 +18,14 @@ const config: { [key: string]: Knex.Config } = {
       directory: "./migrations",
     },
   },
+    production: {
+    client: 'pg',
+    connection: process.env.DATABASE_URL, // Railway provides this automatically
+    migrations: { 
+      extension: 'js',  // compiled JS in production, not TS
+      directory: './dist/migrations' 
+    }
+  }
 };
 
 export default config;
