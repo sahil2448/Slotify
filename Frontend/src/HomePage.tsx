@@ -13,7 +13,8 @@ import { useNavigate } from 'react-router-dom';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import {  } from 'framer-motion';
+
+import type { Variants } from 'framer-motion';
 
 const Homepage: React.FC = () => {
   const navigate = useNavigate();
