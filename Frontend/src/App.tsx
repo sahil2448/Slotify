@@ -7,18 +7,18 @@ import { Toaster } from 'react-hot-toast'
 import Homepage from './HomePage'
 
 function App() {
-    return (
-      <BrowserRouter>
-        <div>
-          <Navbar/>
-          <Routes>
-            <Route path='/' element={<Homepage/>} />
-            <Route path='/schedule'  element={<SchedulePage/>} />
-          </Routes>
+  return (
+    <BrowserRouter>
+      <div>
+        <Navbar />
+        <Routes>
+          <Route path='/' element={<Homepage />} />
+          <Route path='/schedule' element={<SchedulePage />} />
+        </Routes>
 
-          
-        </div>
-              <Toaster 
+
+      </div>
+      <Toaster
         position="top-right"
         toastOptions={{
           duration: 4000,
@@ -28,7 +28,7 @@ function App() {
           },
         }}
       />
-      </BrowserRouter>
-    )
+    </BrowserRouter>
+  )
 }
 export default App

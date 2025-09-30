@@ -13,57 +13,58 @@ import { useNavigate } from 'react-router-dom';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import {  } from 'framer-motion';
 
 const Homepage: React.FC = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  // const containerVariants = {
-  //   hidden: { opacity: 0 },
-  //   visible: {
-  //     opacity: 1,
-  //     transition: {
-  //       delayChildren: 0.3,
-  //       staggerChildren: 0.2
-  //     }
-  //   }
-  // };
+  const containerVariants:Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        delayChildren: 0.3,
+        staggerChildren: 0.2
+      }
+    }
+  };
 
-  // const leftItemVariants = {
-  //   hidden: { x: -50, opacity: 0 },
-  //   visible: {
-  //     x: 0,
-  //     opacity: 1,
-  //     transition: {
-  //       duration: 0.6,
-  //       ease: 'easeOut'
-  //     }
-  //   }
-  // };
+  const leftItemVariants:Variants = {
+    hidden: { x: -50, opacity: 0 },
+    visible: {
+      x: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.6,
+        ease: 'easeOut'
+      }
+    }
+  };
 
-  // const rightItemVariants = {
-  //   hidden: { x: 50, opacity: 0 },
-  //   visible: {
-  //     x: 0,
-  //     opacity: 1,
-  //     transition: {
-  //       duration: 0.6,
-  //       ease: 'easeOut'
-  //     }
-  //   }
-  // };
+  const rightItemVariants:Variants = {
+    hidden: { x: 50, opacity: 0 },
+    visible: {
+      x: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.6,
+        ease: 'easeOut'
+      }
+    }
+  };
 
-  // const floatingVariants = {
-  //   floating: {
-  //     y: [-10, 10, -10],
-  //     transition: {
-  //       duration: 3,
-  //       repeat: Infinity,
-  //       ease: 'easeInOut'
-  //     }
-  //   }
-  // };
+  const floatingVariants:Variants = {
+    floating: {
+      y: [-10, 10, -10],
+      transition: {
+        duration: 3,
+        repeat: Infinity,
+        ease: 'easeInOut'
+      }
+    }
+  };
 
 
   return (
@@ -90,7 +91,7 @@ const Homepage: React.FC = () => {
           background: 'rgba(59, 130, 246, 0.1)',
           zIndex: 0
         }}
-        // variants={floatingVariants}
+        variants={floatingVariants}
         animate="floating"
       />
       
@@ -105,7 +106,7 @@ const Homepage: React.FC = () => {
           background: 'rgba(139, 92, 246, 0.08)',
           zIndex: 0
         }}
-        // variants={floatingVariants}
+        variants={floatingVariants}
         animate="floating"
         transition={{ delay: 1 }}
       />
@@ -119,7 +120,7 @@ const Homepage: React.FC = () => {
         }}
       >
         <motion.div
-          // variants={containerVariants}
+          variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
@@ -135,7 +136,7 @@ const Homepage: React.FC = () => {
           >
             {/* Left Side - Hero Content */}
             <motion.div
-            //  variants={leftItemVariants}
+             variants={leftItemVariants}
              >
               <Box 
                 sx={{ 
@@ -218,7 +219,7 @@ const Homepage: React.FC = () => {
 
             {/* Right Side - Feature Cards */}
             <motion.div 
-            // variants={rightItemVariants}
+            variants={rightItemVariants}
             >
               <Box
                 sx={{

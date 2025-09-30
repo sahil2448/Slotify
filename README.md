@@ -1,5 +1,3 @@
-Here’s a clear, humanized README tailored for the “Scheduler with Recurring Slots” take‑home assignment, covering scope, stack, APIs, data model, and deployment flow.
-
 # Scheduler with Recurring Slots
 
 A full‑stack scheduler that lets users create weekly recurring time slots with per‑date exceptions, showing a weekly calendar with infinite scroll and CRUD on slots.[1]
@@ -55,10 +53,10 @@ A full‑stack scheduler that lets users create weekly recurring time slots with
 
 - Env:
   - DATABASE_URL=postgres://user:pass@host/db[1]
-  - PORT=5000[1]
+  - PORT=4000[1]
 - Scripts:
-  - pnpm migrate to run Knex migrations.[1]
-  - pnpm dev to start local server.[1]
+  - npm migrate to run Knex migrations.[1]
+  - npm dev to start local server.[1]
 
 ### Frontend
 
