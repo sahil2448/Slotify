@@ -18,12 +18,16 @@ const config: { [key: string]: Knex.Config } = {
       directory: "./migrations",
     },
   },
-    production: {
+  production: {
     client: 'pg',
-    connection: process.env.DATABASE_URL, // Railway provides this automatically
+    connection: process.env.DATABASE_URL,
     migrations: { 
-      extension: 'js',  // compiled JS in production, not TS
-      directory: './dist/migrations' 
+      extension: 'ts', // Keep as 'ts' if you're running with ts-node in production
+      directory: './migrations' // Use same directory
+    },
+    pool: {
+      min: 2,
+      max: 10
     }
   }
 };
