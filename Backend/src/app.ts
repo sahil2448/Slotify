@@ -9,7 +9,7 @@ const app = express();
 
 app.use(cors({
   // origin: process.env.FRONTEND_ORIGIN || "http://localhost:5173",
-  origin:"https://slotify-production-b248.up.railway.app",
+  origin:"https://slotify-five.vercel.app",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true
 }));
