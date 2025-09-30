@@ -8,11 +8,14 @@ import slotsRouter from "./routes/slots";
 const app = express();
 
 app.use(cors({
-  // origin: process.env.FRONTEND_ORIGIN || "http://localhost:5173",
-  origin:"https://slotify-five.vercel.app",
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  origin: [
+    process.env.FRONTEND_ORIGIN || "http://localhost:5173",
+    "https://slotify-five.vercel.app"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   credentials: true
 }));
+
 
 app.use(express.json());
 app.use("/slots", slotsRouter);
