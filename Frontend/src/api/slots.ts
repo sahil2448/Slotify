@@ -12,7 +12,7 @@ export async function fetchWeek(weekstart: string) {
   } catch (error) {
     console.error('fetchWeek error:', error);
     toast.error('Failed to fetch schedule data');
-    throw error;
+    // throw error;
   }
 }
 // api/slots.ts - ADD THIS FUNCTION
