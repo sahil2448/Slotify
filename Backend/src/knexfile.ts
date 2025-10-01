@@ -19,17 +19,20 @@ const config: { [key: string]: Knex.Config } = {
     },
   },
   production: {
-    client: 'pg',
-    connection: process.env.DATABASE_URL,
-    migrations: { 
-      extension: 'ts', // Keep as 'ts' if you're running with ts-node in production
-      directory: './migrations' // Use same directory
+    client: "pg",
+    connection: {
+      connectionString: process.env.DATABASE_URL as string,
+      // Option A (preferred when CA is trusted by platform):
+      ssl: true, // treated as sslmode=require by pg
+      // Option B (only if you see cert errors from your host):
+      // ssl: { rejectUnauthorized: false },
     },
-    pool: {
-      min: 2,
-      max: 10
-    }
-  }
+    migrations: {
+      extension: "ts",
+      directory: "./migrations",
+    },
+    pool: { min: 2, max: 10 },
+  },
 };
 
 export default config;
