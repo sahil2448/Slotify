@@ -1,7 +1,7 @@
 import toast from 'react-hot-toast';
 
-const base = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000"; // development
-// const base = "https://slotify-production-b248.up.railway.app" // production
+// const base = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000"; // development
+const base = "https://slotify-production-b248.up.railway.app" // production
 export async function fetchWeek(weekstart: string) {
   try {
     const response = await fetch(`${base}/slots?weekStart=${weekstart}`);
