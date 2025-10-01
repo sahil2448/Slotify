@@ -1,3 +1,4 @@
+
 // src/app.ts
 import express from "express";
 import dotenv from "dotenv";
@@ -8,14 +9,10 @@ import slotsRouter from "./routes/slots";
 const app = express();
 
 app.use(cors({
-  origin: [
-    process.env.FRONTEND_ORIGIN || "http://localhost:5173",
-    "https://slotify-five.vercel.app"
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  origin:[ process.env.FRONTEND_ORIGIN || "http://localhost:5173","https://slotify-five.vercel.app"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true
 }));
-
 
 app.use(express.json());
 app.use("/slots", slotsRouter);
