@@ -9,7 +9,9 @@ dotenv.config();
 const app = express();
 
 // Normalize origin (no trailing slash) and allowlist
-const ALLOWED_ORIGIN = (process.env.FRONTEND_ORIGIN || 'http://localhost:5173').replace(/\/$/, '');
+const ALLOWED_ORIGIN = (process.env.FRONTEND_ORIGIN || 'http://localhost:5173',
+  'https://slotify-five.vercel.app'
+).replace(/\/$/, '');
 
 app.use(cors({
   origin: (origin, cb) => {
