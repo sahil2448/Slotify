@@ -19,17 +19,14 @@ const config: { [key: string]: Knex.Config } = {
     },
   },
   production: {
-    client: 'pg',
-    connection: process.env.DATABASE_URL,
-    migrations: { 
-      extension: 'ts', // Keep as 'ts' if you're running with ts-node in production
-      directory: './migrations' // Use same directory
+    client: "pg",
+connection: process.env.DATABASE_URL,
+    migrations: {
+      extension: "ts",
+      directory: "./migrations",
     },
-    pool: {
-      min: 2,
-      max: 10
-    }
-  }
+    pool: { min: 2, max: 10 },
+  },
 };
 
 export default config;
