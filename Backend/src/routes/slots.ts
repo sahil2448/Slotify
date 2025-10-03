@@ -1,42 +1,45 @@
 // src/routes/slots.ts
+import { asyncHandler } from "../utils/asyncHandler";
 import express from "express";
 import * as service from "../services/slotsService"; // ensure file name matches
 const router = express.Router();
 
-
-router.post("/", async (req, res) => {
-  try {
+router.post(
+  "/",
+  asyncHandler(async (req, res) => {
     const { day_of_week, start_time, end_time } = req.body;
-    if (typeof day_of_week !== "number") return res.status(400).json({ error: "day_of_week required" });
-    if (!start_time || !end_time) return res.status(400).json({ error: "start_time and end_time required" });
+    if (typeof day_of_week !== "number")
+      return res.status(400).json({ error: "day_of_week required" });
+    if (!start_time || !end_time)
+      return res.status(400).json({ error: "start_time and end_time required" });
 
-    const existing = await (await import("../db/knex")).default("slots").where({ day_of_week }).count("* as cnt").first();
+    const existing = await (await import("../db/knex")).default("slots")
+      .where({ day_of_week })
+      .count("* as cnt")
+      .first();
     const cnt = Number((existing as any).cnt);
     if (cnt >= 2) {
-      return res.status(400).json({ error: "Max 2 recurring slots allowed for this weekday" });
+      return res
+        .status(400)
+        .json({ error: "Max 2 recurring slots allowed for this weekday" });
     }
     const id = await service.createRecurringSlot(day_of_week, start_time, end_time);
     return res.status(201).json({ id });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "server error" });
-  }
-});
+  })
+);
 
-
-router.get("/", async (req, res) => {
-  try {
+router.get(
+  "/",
+  asyncHandler(async (req, res) => {
     const weekStart = (req.query.weekStart as string) || new Date().toISOString().slice(0, 10);
     const data = await service.fetchSlotsForWeek(weekStart);
     return res.json({ weekStart, data });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "server error" });
-  }
-});
+  })
+);
 
-router.post("/:slotId/exceptions", async (req, res) => {
-  try {
+router.post(
+  "/:slotId/exceptions",
+  asyncHandler(async (req, res) => {
     const slotId = Number(req.params.slotId);
     const { exception_date, new_start_time, new_end_time, is_deleted } = req.body;
 
@@ -104,15 +107,13 @@ router.post("/:slotId/exceptions", async (req, res) => {
 
     const id = await service.addException(slotId, exception_date, { new_start_time, new_end_time, is_deleted });
     return res.json({ exceptionId: id });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "server error" });
-  }
-});
+  })
+);
 
 // DELETE /slots/:slotId/exceptions?exception_date=YYYY-MM-DD
-router.delete("/:slotId/exceptions", async (req, res) => {
-  try {
+router.delete(
+  "/:slotId/exceptions",
+  asyncHandler(async (req, res) => {
     const slotId = Number(req.params.slotId);
     const exception_date = String(req.query.exception_date || "");
     if (!exception_date) return res.status(400).json({ error: "exception_date query param required" });
@@ -120,49 +121,38 @@ router.delete("/:slotId/exceptions", async (req, res) => {
     const removed = await service.removeExceptionBySlotAndDate(slotId, exception_date);
     if (!removed) return res.status(404).json({ error: "exception not found" });
     return res.json({ removed: true });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "server error" });
-  }
-});
+  })
+);
 
-// DELETE /slots/exceptions/:id
-router.delete("/exceptions/:id", async (req, res) => {
-  try {
+router.delete(
+  "/exceptions/:id",
+  asyncHandler(async (req, res) => {
     const id = Number(req.params.id);
     if (!id) return res.status(400).json({ error: "invalid id" });
 
     const removed = await service.deleteExceptionById(id);
     if (!removed) return res.status(404).json({ error: "exception not found" });
     return res.json({ removed: true });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "server error" });
-  }
-});
+  })
+);
 
-
-router.delete("/:slotId", async (req, res) => {
-  try {
+router.delete(
+  "/:slotId",
+  asyncHandler(async (req, res) => {
     const slotId = Number(req.params.slotId);
     if (!slotId) return res.status(400).json({ error: "invalid slotId" });
 
     const db = (await import("../db/knex")).default;
-    
+
     const slot = await db("slots").where({ id: slotId }).first();
     if (!slot) return res.status(404).json({ error: "slot not found" });
 
     await db("exceptions").where({ slot_id: slotId }).del();
-    
+
     await db("slots").where({ id: slotId }).del();
-    
+
     return res.json({ removed: true });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "server error" });
-  }
-});
-
-
+  })
+);
 
 export default router;

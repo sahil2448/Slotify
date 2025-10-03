@@ -1,4 +1,4 @@
-﻿﻿// src/services/slotsService.ts
+﻿﻿﻿﻿// src/services/slotsService.ts
 import db from "../db/knex";
 import { getWeekDates, dateToDayOfWeek } from "../utils/dateUtils";
 
