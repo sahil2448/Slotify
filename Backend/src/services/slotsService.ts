@@ -32,7 +32,11 @@ export async function createRecurringSlot(day_of_week: number, start_time: strin
   return id;
 }
 
-export async function addException(slot_id: number, exception_date: string, payload: { new_start_time?: string | null, new_end_time?: string | null, is_deleted?: boolean }) {
+export async function addException(
+  slot_id: number,
+  exception_date: string,
+  payload: { new_start_time?: string | null; new_end_time?: string | null; is_deleted?: boolean }
+) {
   const row = {
     slot_id,
     exception_date,
@@ -51,7 +55,7 @@ export async function addException(slot_id: number, exception_date: string, payl
 }
 
 export async function fetchSlotsForWeek(weekStartISO: string) {
-  const dates = getWeekDates(weekStartISO);
+  const dates: string[] = getWeekDates(weekStartISO); // YYYY-MM-DD strings
 
   const daySet = Array.from(new Set(dates.map(dateToDayOfWeek)));
   const recurringSlots: RecurringSlot[] = await db("slots").whereIn("day_of_week", daySet).select("*");
@@ -61,16 +65,9 @@ export async function fetchSlotsForWeek(weekStartISO: string) {
     .select("*");
 
   const exceptions: ExceptionRow[] = rawExceptions.map((e) => {
-    let exDateStr: string;
-    if (e.exception_date instanceof Date) {
-      const dt = e.exception_date;
-      const y = dt.getFullYear();
-      const m = String(dt.getMonth() + 1).padStart(2, "0");
-      const d = String(dt.getDate()).padStart(2, "0");
-      exDateStr = `${y}-${m}-${d}`;
-    } else {
-      exDateStr = String(e.exception_date).slice(0, 10);
-    }
+    const exDateStr = e.exception_date instanceof Date
+      ? e.exception_date.toISOString().slice(0, 10)
+      : String(e.exception_date).slice(0, 10);
 
     return {
       id: Number(e.id),
@@ -92,18 +89,16 @@ export async function fetchSlotsForWeek(weekStartISO: string) {
 
     for (const base of baseSlots) {
       const ex = exceptions.find((e) => Number(e.slot_id) === Number(base.id) && e.exception_date === date);
+
       if (ex) {
-        if (ex.is_deleted) {
-          continue;
-        } else {
-          daySlots.push({
-            slotId: base.id,
-            start_time: ex.new_start_time ?? base.start_time,
-            end_time: ex.new_end_time ?? base.end_time,
-            isException: true,
-            exceptionId: ex.id,
-          });
-        }
+        if (ex.is_deleted) continue;
+        daySlots.push({
+          slotId: base.id,
+          start_time: ex.new_start_time ?? base.start_time,
+          end_time: ex.new_end_time ?? base.end_time,
+          isException: true,
+          exceptionId: ex.id,
+        });
       } else {
         daySlots.push({
           slotId: base.id,
@@ -119,7 +114,6 @@ export async function fetchSlotsForWeek(weekStartISO: string) {
 
   return result;
 }
-
 
 export async function removeExceptionBySlotAndDate(slot_id: number, exception_date: string): Promise<boolean> {
   const existing = await db("exceptions").where({ slot_id, exception_date }).first();

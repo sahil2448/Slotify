@@ -33,25 +33,6 @@ const corsOptions: cors.CorsOptions = {
 // Ensure CORS middleware runs before other middleware/routes so even errors include CORS headers
 app.use(cors(corsOptions));
 
-// Also explicitly handle preflight for all routes (optional but clarifies intent)
-// Use '/*' for a catch-all path — some path-to-regexp versions choke on the lone '*'.
-// We avoid registering route-specific OPTIONS handlers (e.g. app.options("*"/"/*")) because
-// some versions of path-to-regexp/express can throw `Missing parameter name` for wildcard patterns.
-// The global CORS middleware applied earlier (app.use(cors(corsOptions))) already handles preflight
-// OPTIONS requests for all routes, so no explicit app.options registration is necessary.
-// If you need a manual preflight handler instead, uncomment the snippet below.
-
-/*
-app.use((req, res, next) => {
-  if (req.method !== 'OPTIONS') return next();
-  // Manually send the CORS headers for preflight requests
-  res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,PATCH,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  return res.sendStatus(204);
-});
-*/
 
 app.use(express.json({ limit: '1mb' }));
 
